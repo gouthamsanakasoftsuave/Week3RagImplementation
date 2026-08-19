@@ -1,4 +1,4 @@
-"""Streamlit UI: Ask My Documents (RAG)."""
+"""Streamlit UI: Ask My Documents (RAG) + Week 4 inspection / hybrid search."""
 
 from __future__ import annotations
 
@@ -27,10 +27,24 @@ def get_pipeline() -> RagPipeline:
     return RagPipeline(documents_dir=DOCS_DIR, persist_dir=DB_DIR)
 
 
+def classify_failure(question: str, chunks, answer) -> str:
+    """Heuristic label for mentor inspection (retrieval vs generation)."""
+    if not chunks:
+        return "Retrieval failure — no useful chunks fetched"
+    joined = " ".join(c.content.lower() for c in chunks)
+    key_terms = [t for t in question.lower().replace('"', " ").split() if len(t) > 4]
+    overlap = sum(1 for t in key_terms if t in joined)
+    if key_terms and overlap / max(len(key_terms), 1) < 0.25:
+        return "Likely retrieval failure — fetched chunks look weakly related"
+    if not answer.grounded:
+        return "Retrieval may be weak OR evidence incomplete — model refused to answer"
+    return "If answer is still wrong: likely generation failure (right-ish docs, bad answer)"
+
+
 def main() -> None:
     st.title("Ask My Documents")
     st.caption(
-        "Retrieval-Augmented Generation — answers come only from your files, with sources."
+        "Week 3–4 RAG — hybrid retrieval (BM25 + semantic + RRF), grounded answers, inspection view."
     )
 
     if not os.getenv("GROQ_API_KEY"):
@@ -48,7 +62,6 @@ def main() -> None:
             if p.suffix.lower() in {".pdf", ".txt", ".md"}
         )
         if existing:
-            st.write("Files found:")
             for name in existing:
                 st.markdown(f"- `{name}`")
         else:
@@ -66,21 +79,32 @@ def main() -> None:
             st.success(f"Saved {len(uploaded)} file(s). Click **Rebuild index**.")
 
         st.divider()
+        st.header("Retrieval (Week 4)")
+        mode = st.radio(
+            "Search mode",
+            options=["hybrid", "semantic", "bm25"],
+            index=0,
+            help="hybrid = BM25 keyword + semantic vectors fused with RRF (one Week-4 improvement)",
+        )
+        top_k = st.slider("Top-K", min_value=3, max_value=8, value=max(pipeline.top_k, 4))
+
+        st.divider()
         st.header("Index")
         status = pipeline.status()
         st.metric("Indexed chunks", status["indexed_chunks"])
         st.caption(
-            f"Chunk size {status['chunk_size']} · overlap {status['chunk_overlap']} · "
-            f"top-K {status['top_k']} · min score {status['similarity_threshold']}"
+            f"Chunk {status['chunk_size']}/{status['chunk_overlap']} · "
+            f"BM25 docs {status['bm25_docs']} · min semantic score {status['similarity_threshold']}"
         )
 
         if st.button("Rebuild index", type="primary", use_container_width=True):
             with st.spinner("Loading, chunking, and embedding documents..."):
                 result = pipeline.ingest(rebuild=True)
             st.success(
-                f"Indexed {result.chunks} chunks from {result.documents} document parts "
+                f"Indexed {result.chunks} chunks from {result.documents} parts "
                 f"({', '.join(result.sources) or 'none'})."
             )
+            st.cache_resource.clear()
             st.rerun()
 
         source_options = ["(all documents)"] + existing
@@ -93,16 +117,42 @@ def main() -> None:
 
     question = st.text_input(
         "Your question",
-        placeholder="e.g. How many paid sick days do employees get?",
+        placeholder='e.g. List numbered items under "Health and Safety, Security, Fire"',
     )
     ask = st.button("Ask", type="primary")
 
     if ask and question.strip():
-        with st.spinner("Retrieving relevant chunks and generating answer..."):
-            answer = pipeline.ask(question.strip(), source_filter=source_filter)
+        q = question.strip()
+        with st.spinner(f"Retrieving with **{mode}** and generating answer..."):
+            chunks = pipeline.retrieve(
+                q, top_k=top_k, source_filter=source_filter, mode=mode
+            )
+            answer = pipeline.ask(
+                q, top_k=top_k, source_filter=source_filter, mode=mode
+            )
 
-        st.subheader("Answer")
-        st.write(answer.answer)
+        st.subheader("Inspection view (Week 4)")
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            st.markdown("**Question**")
+            st.write(q)
+            st.caption(f"Mode: `{mode}` · top-K: {top_k}")
+        with c2:
+            st.markdown("**Fetched chunks**")
+            if not chunks:
+                st.write("_(none)_")
+            else:
+                for i, chunk in enumerate(chunks, start=1):
+                    page = chunk.metadata.get("page") or "?"
+                    st.markdown(
+                        f"`#{i}` p{page} · score {chunk.score:.4f} · "
+                        f"{chunk.metadata.get('retrieval', mode)}"
+                    )
+        with c3:
+            st.markdown("**Final answer**")
+            st.write(answer.answer)
+
+        st.info(classify_failure(q, chunks, answer))
 
         if answer.grounded:
             st.success("Grounded in retrieved documents")
@@ -111,30 +161,33 @@ def main() -> None:
 
         st.subheader("Retrieved evidence")
         if not answer.chunks_used:
-            st.write("No chunks passed the similarity threshold.")
+            st.write("No chunks returned.")
         else:
             for i, chunk in enumerate(answer.chunks_used, start=1):
                 page = chunk.metadata.get("page") or ""
                 label = f"{chunk.source}" + (f" · page {page}" if page else "")
-                with st.expander(f"#{i} · {label} · score {chunk.score:.2f}", expanded=i == 1):
-                    st.write(chunk.content)
+                with st.expander(
+                    f"#{i} · {label} · score {chunk.score:.4f}",
+                    expanded=i == 1,
+                ):
+                    st.write(chunk.content or "_(empty chunk)_")
                     st.caption(f"Chunk id: `{chunk.chunk_id}`")
 
         if answer.sources:
             st.markdown("**Sources:** " + ", ".join(f"`{s}`" for s in answer.sources))
 
     st.divider()
-    with st.expander("Try these questions"):
+    with st.expander("Week 4 demo questions (HR Policy)"):
         st.markdown(
             """
-- How many paid sick days do employees get?
-- What is the monthly internet stipend for remote work?
-- Can unused annual leave carry over?
-- What is the hotel limit in tier-1 cities?
-- What is our customer refund policy for electronics?
-  *(should say it doesn't know — not in these docs)*
+- List the numbered items under the heading Health and Safety, Security, Fire in the new employee induction checklist
+- what are items that are available in "Health and Safety, Security, Fire"
+- Where is the location of fire-fighting equipment covered in induction?
+- What does the induction checklist say about keys, passes and ID Badges?
+- What is the purpose of the Induction checklist for new employees?
             """
         )
+        st.caption("Measure before/after with: `python eval_hit_rate.py --rebuild`")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,160 @@
+{
+  "before": {
+    "mode": "semantic",
+    "k": 3,
+    "hit_rate": 0.2,
+    "hits": 1,
+    "total": 5,
+    "rows": [
+      {
+        "id": "hs_fire_checklist",
+        "hit": false,
+        "pages": [
+          "15",
+          "18",
+          "15"
+        ],
+        "chunk_ids": [
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p15::c0",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p18::c1",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p15::c4"
+        ]
+      },
+      {
+        "id": "hs_fire_heading",
+        "hit": false,
+        "pages": [
+          "91",
+          "91",
+          "90"
+        ],
+        "chunk_ids": [
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p91::c1",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p91::c2",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p90::c2"
+        ]
+      },
+      {
+        "id": "fire_fighting_equipment",
+        "hit": false,
+        "pages": [
+          "94",
+          "18",
+          "14"
+        ],
+        "chunk_ids": [
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p94::c0",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p18::c1",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p14::c2"
+        ]
+      },
+      {
+        "id": "id_badges_keys",
+        "hit": false,
+        "pages": [
+          "15",
+          "15",
+          "15"
+        ],
+        "chunk_ids": [
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p15::c0",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p15::c4",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p15::c1"
+        ]
+      },
+      {
+        "id": "induction_checklist_purpose",
+        "hit": true,
+        "pages": [
+          "15",
+          "14",
+          "14"
+        ],
+        "chunk_ids": [
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p15::c0",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p14::c2",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p14::c1"
+        ]
+      }
+    ]
+  },
+  "after": {
+    "mode": "hybrid",
+    "k": 3,
+    "hit_rate": 0.6,
+    "hits": 3,
+    "total": 5,
+    "rows": [
+      {
+        "id": "hs_fire_checklist",
+        "hit": true,
+        "pages": [
+          "20",
+          "91",
+          "91"
+        ],
+        "chunk_ids": [
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p20::c0",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p91::c1",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p91::c2"
+        ]
+      },
+      {
+        "id": "hs_fire_heading",
+        "hit": true,
+        "pages": [
+          "20",
+          "91",
+          "91"
+        ],
+        "chunk_ids": [
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p20::c0",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p91::c1",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p91::c2"
+        ]
+      },
+      {
+        "id": "fire_fighting_equipment",
+        "hit": false,
+        "pages": [
+          "94",
+          "6",
+          "93"
+        ],
+        "chunk_ids": [
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p94::c0",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p6::c3",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p93::c5"
+        ]
+      },
+      {
+        "id": "id_badges_keys",
+        "hit": false,
+        "pages": [
+          "15",
+          "18",
+          "13"
+        ],
+        "chunk_ids": [
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p15::c0",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p18::c1",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p13::c0"
+        ]
+      },
+      {
+        "id": "induction_checklist_purpose",
+        "hit": true,
+        "pages": [
+          "15",
+          "14",
+          "14"
+        ],
+        "chunk_ids": [
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p15::c0",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p14::c1",
+          "HR-Policy-Manual-NIHR-2020-1.pdf::p14::c2"
+        ]
+      }
+    ]
+  }
+}

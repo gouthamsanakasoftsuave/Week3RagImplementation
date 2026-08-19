@@ -59,7 +59,7 @@ def generate_answer(
         )
 
     client = Groq(api_key=api_key or os.getenv("GROQ_API_KEY"))
-    model_name = model or os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    model_name = model or os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
     context = build_context(chunks)
 
     user_prompt = (

@@ -8,9 +8,9 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from rag.chunking import Chunk, chunk_documents
+from rag.chunking import chunk_documents
 from rag.generate import RagAnswer, generate_answer
-from rag.loader import Document, load_directory
+from rag.loader import load_directory
 from rag.store import RetrievedChunk, VectorStore
 
 load_dotenv()
@@ -34,6 +34,7 @@ class RagPipeline:
         self.chunk_overlap = int(os.getenv("CHUNK_OVERLAP", "100"))
         self.top_k = int(os.getenv("TOP_K", "4"))
         self.similarity_threshold = float(os.getenv("SIMILARITY_THRESHOLD", "0.35"))
+        self.default_mode = os.getenv("RETRIEVAL_MODE", "hybrid")
         self.store = VectorStore(
             embedding_model_name=os.getenv(
                 "EMBEDDING_MODEL",
@@ -60,19 +61,34 @@ class RagPipeline:
         question: str,
         top_k: int | None = None,
         source_filter: str | None = None,
+        mode: str | None = None,
     ) -> list[RetrievedChunk]:
         k = top_k or self.top_k
-        results = self.store.search(question, top_k=k, source_filter=source_filter)
-        # Drop weak matches so the model is not tempted to invent from noise
-        return [r for r in results if r.score >= self.similarity_threshold]
+        retrieval_mode = (mode or self.default_mode).lower()
+        results = self.store.search(
+            question,
+            top_k=k,
+            source_filter=source_filter,
+            mode=retrieval_mode,
+        )
+        # Semantic scores are cosine similarity; hybrid RRF scores are tiny — don't reuse 0.35
+        if retrieval_mode == "semantic":
+            return [r for r in results if r.score >= self.similarity_threshold]
+        return results
 
     def ask(
         self,
         question: str,
         top_k: int | None = None,
         source_filter: str | None = None,
+        mode: str | None = None,
     ) -> RagAnswer:
-        chunks = self.retrieve(question, top_k=top_k, source_filter=source_filter)
+        chunks = self.retrieve(
+            question,
+            top_k=top_k,
+            source_filter=source_filter,
+            mode=mode,
+        )
         return generate_answer(question, chunks)
 
     def status(self) -> dict:
@@ -83,4 +99,6 @@ class RagPipeline:
             "chunk_overlap": self.chunk_overlap,
             "top_k": self.top_k,
             "similarity_threshold": self.similarity_threshold,
+            "retrieval_mode": self.default_mode,
+            "bm25_docs": self.store.bm25.size,
         }
