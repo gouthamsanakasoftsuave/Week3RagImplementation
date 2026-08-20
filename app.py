@@ -9,6 +9,7 @@ import streamlit as st
 from dotenv import load_dotenv
 
 from rag.pipeline import RagPipeline
+from rag.ocr import ocr_enabled, tesseract_available
 
 load_dotenv()
 
@@ -59,7 +60,7 @@ def main() -> None:
         existing = sorted(
             p.name
             for p in DOCS_DIR.glob("*")
-            if p.suffix.lower() in {".pdf", ".txt", ".md"}
+            if p.suffix.lower() in {".pdf", ".txt", ".md", ".png", ".jpg", ".jpeg", ".webp", ".tif", ".tiff"}
         )
         if existing:
             for name in existing:
@@ -69,7 +70,7 @@ def main() -> None:
 
         uploaded = st.file_uploader(
             "Upload more documents",
-            type=["pdf", "txt", "md"],
+            type=["pdf", "txt", "md", "png", "jpg", "jpeg", "webp", "tif", "tiff"],
             accept_multiple_files=True,
         )
         if uploaded:
@@ -77,6 +78,18 @@ def main() -> None:
             for f in uploaded:
                 (DOCS_DIR / f.name).write_bytes(f.getbuffer())
             st.success(f"Saved {len(uploaded)} file(s). Click **Rebuild index**.")
+
+        st.divider()
+        st.header("OCR")
+        if ocr_enabled() and tesseract_available():
+            st.success("OCR ready (Tesseract found)")
+        elif ocr_enabled():
+            st.warning(
+                "OCR enabled in `.env`, but Tesseract is not installed/found. "
+                "Digital PDF text still works. See README for install steps."
+            )
+        else:
+            st.info("OCR disabled (`ENABLE_OCR=false`)")
 
         st.divider()
         st.header("Retrieval (Week 4)")
