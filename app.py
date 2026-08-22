@@ -1,4 +1,4 @@
-"""Streamlit UI: Ask My Documents (RAG) + Week 4 inspection / hybrid search."""
+"""Streamlit UI: Ask Legal Contracts (RAG) + inspection / hybrid search."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from rag.ocr import ocr_enabled, tesseract_available
 load_dotenv()
 
 st.set_page_config(
-    page_title="Ask My Documents",
+    page_title="Ask Legal Contracts",
     page_icon="📄",
     layout="wide",
 )
@@ -43,9 +43,14 @@ def classify_failure(question: str, chunks, answer) -> str:
 
 
 def main() -> None:
-    st.title("Ask My Documents")
+    st.title("Ask Legal Contracts")
     st.caption(
-        "Week 3–4 RAG — hybrid retrieval (BM25 + semantic + RRF), grounded answers, inspection view."
+        "Ask questions over uploaded contracts. Answers are grounded in retrieved clauses "
+        "with sources. Hybrid retrieval: BM25 + semantic + RRF."
+    )
+    st.warning(
+        "This is **not legal advice**. The app only summarizes text from your uploaded "
+        "contracts. Have a qualified lawyer review any real matter."
     )
 
     if not os.getenv("GROQ_API_KEY"):
@@ -55,7 +60,7 @@ def main() -> None:
     pipeline = get_pipeline()
 
     with st.sidebar:
-        st.header("Documents")
+        st.header("Contracts")
         st.write(f"Folder: `{DOCS_DIR.resolve()}`")
         existing = sorted(
             p.name
@@ -66,10 +71,10 @@ def main() -> None:
             for name in existing:
                 st.markdown(f"- `{name}`")
         else:
-            st.warning("No documents found. Add PDF/TXT/MD files to `documents/`.")
+            st.warning("No contracts found. Add PDF/TXT/MD files to `documents/`.")
 
         uploaded = st.file_uploader(
-            "Upload more documents",
+            "Upload more contracts",
             type=["pdf", "txt", "md", "png", "jpg", "jpeg", "webp", "tif", "tiff"],
             accept_multiple_files=True,
         )
@@ -120,17 +125,17 @@ def main() -> None:
             st.cache_resource.clear()
             st.rerun()
 
-        source_options = ["(all documents)"] + existing
+        source_options = ["(all contracts)"] + existing
         source_choice = st.selectbox("Metadata filter (source)", source_options)
-        source_filter = None if source_choice == "(all documents)" else source_choice
+        source_filter = None if source_choice == "(all contracts)" else source_choice
 
     if pipeline.store.count == 0:
-        st.info("No index yet. Click **Rebuild index** in the sidebar to ingest documents.")
+        st.info("No index yet. Click **Rebuild index** in the sidebar to ingest contracts.")
         return
 
     question = st.text_input(
         "Your question",
-        placeholder='e.g. List numbered items under "Health and Safety, Security, Fire"',
+        placeholder="e.g. What does the Limitation of Liability clause say?",
     )
     ask = st.button("Ask", type="primary")
 
@@ -190,17 +195,17 @@ def main() -> None:
             st.markdown("**Sources:** " + ", ".join(f"`{s}`" for s in answer.sources))
 
     st.divider()
-    with st.expander("Week 4 demo questions (HR Policy)"):
+    with st.expander("Sample contract questions"):
         st.markdown(
             """
-- List the numbered items under the heading Health and Safety, Security, Fire in the new employee induction checklist
-- what are items that are available in "Health and Safety, Security, Fire"
-- Where is the location of fire-fighting equipment covered in induction?
-- What does the induction checklist say about keys, passes and ID Badges?
-- What is the purpose of the Induction checklist for new employees?
+- What does the Limitation of Liability clause say?
+- What is the Governing Law of the NDA?
+- How can either party terminate the Master Services Agreement?
+- What must the receiving party do with Confidential Information?
+- How much notice is required to terminate employment without cause?
             """
         )
-        st.caption("Measure before/after with: `python eval_hit_rate.py --rebuild`")
+        st.caption("Measure retrieval with: `python eval_hit_rate.py --rebuild`")
 
 
 if __name__ == "__main__":

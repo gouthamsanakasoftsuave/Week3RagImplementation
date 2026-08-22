@@ -1,0 +1,57 @@
+[
+  {
+    "id": "limitation_of_liability",
+    "question": "What does the Limitation of Liability clause say?",
+    "expected_source": "msa.txt",
+    "expected_page": "",
+    "expected_phrases": [
+      "Limitation of Liability",
+      "twelve (12) months"
+    ],
+    "notes": "MSA liability cap"
+  },
+  {
+    "id": "nda_governing_law",
+    "question": "What is the Governing Law of the NDA?",
+    "expected_source": "nda.txt",
+    "expected_page": "",
+    "expected_phrases": [
+      "England and Wales",
+      "courts of London"
+    ],
+    "notes": "NDA jurisdiction"
+  },
+  {
+    "id": "msa_termination",
+    "question": "How can either party terminate the Master Services Agreement?",
+    "expected_source": "msa.txt",
+    "expected_page": "",
+    "expected_phrases": [
+      "sixty (60) days",
+      "materially breaches"
+    ],
+    "notes": "MSA termination"
+  },
+  {
+    "id": "confidential_information",
+    "question": "What must the receiving party do with Confidential Information?",
+    "expected_source": "nda.txt",
+    "expected_page": "",
+    "expected_phrases": [
+      "Confidential Information",
+      "reasonable care"
+    ],
+    "notes": "NDA confidentiality duty"
+  },
+  {
+    "id": "employment_notice",
+    "question": "How much notice is required to terminate employment without cause?",
+    "expected_source": "employment_agreement.txt",
+    "expected_page": "",
+    "expected_phrases": [
+      "thirty (30) days",
+      "without cause"
+    ],
+    "notes": "Employment notice period"
+  }
+]

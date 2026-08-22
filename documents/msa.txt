@@ -1,0 +1,36 @@
+MASTER SERVICES AGREEMENT
+
+This Master Services Agreement (the "MSA") is between Northwind Analytics Ltd ("Provider")
+and Cedar Retail Group ("Customer"), effective 15 March 2025.
+
+1. Services
+Provider will deliver software implementation and support services as described in each signed
+Statement of Work ("SOW"). Each SOW is incorporated into this MSA.
+
+2. Fees
+Customer shall pay invoices within thirty (30) days of the invoice date. Late amounts accrue
+interest at 1.5% per month.
+
+3. Limitation of Liability
+Except for fraud, willful misconduct, or breach of confidentiality, each party's total aggregate
+liability under this MSA shall not exceed the fees paid by Customer to Provider in the twelve (12)
+months immediately preceding the claim. Neither party is liable for indirect, incidental, or
+consequential damages, including lost profits.
+
+4. Indemnification
+Provider shall indemnify Customer against third-party claims that the delivered services infringe
+a patent or copyright, provided Customer gives prompt written notice and exclusive control of the
+defense.
+
+5. Intellectual Property
+Provider retains all intellectual property in its pre-existing tools and platforms. Customer owns
+deliverables specifically created for Customer under an SOW, excluding Provider's pre-existing
+materials.
+
+6. Termination
+Either party may terminate this MSA for convenience on sixty (60) days' prior written notice.
+Either party may terminate immediately if the other party materially breaches this MSA and fails
+to cure within thirty (30) days after written notice of the breach.
+
+7. Governing Law
+This MSA is governed by the laws of the State of Delaware, excluding conflict-of-law rules.

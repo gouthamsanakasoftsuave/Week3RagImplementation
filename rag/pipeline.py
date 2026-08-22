@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from rag.chunking import chunk_documents
 from rag.generate import RagAnswer, generate_answer
 from rag.loader import load_directory
+from rag.query import rewrite_query
 from rag.store import RetrievedChunk, VectorStore
 
 load_dotenv()
@@ -66,7 +67,7 @@ class RagPipeline:
         k = top_k or self.top_k
         retrieval_mode = (mode or self.default_mode).lower()
         results = self.store.search(
-            question,
+            rewrite_query(question),
             top_k=k,
             source_filter=source_filter,
             mode=retrieval_mode,

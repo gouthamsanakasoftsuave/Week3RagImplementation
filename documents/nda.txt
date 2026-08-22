@@ -1,0 +1,25 @@
+MUTUAL NON-DISCLOSURE AGREEMENT
+
+This Mutual Non-Disclosure Agreement (the "Agreement") is entered into as of 1 January 2025
+between Northwind Analytics Ltd ("Disclosing Party") and Harbor Legal Services LLP
+("Receiving Party").
+
+1. Confidentiality
+Confidential Information means all non-public business, technical, and financial information
+disclosed by either party, including customer lists, source code, and draft contract terms.
+The Receiving Party shall use Confidential Information solely to evaluate a potential commercial
+relationship and shall not disclose it to any third party without prior written consent.
+The Receiving Party must protect Confidential Information using at least the same degree of care
+it uses for its own confidential materials, and in no event less than reasonable care.
+
+2. Term
+The confidentiality obligations survive for three (3) years after the last disclosure under this
+Agreement.
+
+3. Governing Law
+This Agreement is governed by the laws of England and Wales, and the courts of London have
+exclusive jurisdiction over disputes arising out of this Agreement.
+
+4. Return of materials
+Upon written request, the Receiving Party shall promptly return or securely destroy all copies of
+Confidential Information, except one copy retained solely for legal archive purposes.

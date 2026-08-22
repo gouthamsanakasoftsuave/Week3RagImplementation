@@ -53,22 +53,47 @@ class VectorStore:
             path=self.persist_dir,
             settings=Settings(anonymized_telemetry=False),
         )
-        self.collection = self.client.get_or_create_collection(
-            name=collection_name,
-            metadata={"hnsw:space": "cosine"},
-        )
         self.bm25 = BM25Index()
+        self._ensure_collection()
         self._refresh_bm25()
 
-    def clear(self) -> None:
-        self.client.delete_collection(self.collection_name)
+    def _ensure_collection(self) -> None:
+        """Re-bind the collection by name (Streamlit cache can keep a deleted UUID)."""
+        try:
+            self.collection = self.client.get_or_create_collection(
+                name=self.collection_name,
+                metadata={"hnsw:space": "cosine"},
+            )
+            self.collection.count()
+            return
+        except Exception:
+            pass
+        try:
+            self.client.delete_collection(self.collection_name)
+        except Exception:
+            pass
         self.collection = self.client.get_or_create_collection(
             name=self.collection_name,
             metadata={"hnsw:space": "cosine"},
         )
+
+    def clear(self) -> None:
+        # Delete vectors in place so the collection UUID stays valid for cached clients.
+        self._ensure_collection()
+        try:
+            ids = self.collection.get().get("ids") or []
+            if ids:
+                self.collection.delete(ids=ids)
+        except Exception:
+            try:
+                self.client.delete_collection(self.collection_name)
+            except Exception:
+                pass
+            self._ensure_collection()
         self.bm25.rebuild([], [], [])
 
     def _refresh_bm25(self) -> None:
+        self._ensure_collection()
         if self.collection.count() == 0:
             self.bm25.rebuild([], [], [])
             return
@@ -79,6 +104,7 @@ class VectorStore:
         self.bm25.rebuild(ids, docs, metas)
 
     def add_chunks(self, chunks: list[Chunk], batch_size: int = 32) -> int:
+        self._ensure_collection()
         if not chunks:
             return 0
 
@@ -137,6 +163,7 @@ class VectorStore:
         top_k: int = 4,
         source_filter: str | None = None,
     ) -> list[RetrievedChunk]:
+        self._ensure_collection()
         if self.collection.count() == 0:
             return []
 
@@ -220,4 +247,12 @@ class VectorStore:
 
     @property
     def count(self) -> int:
-        return self.collection.count()
+        self._ensure_collection()
+        try:
+            return self.collection.count()
+        except Exception:
+            self._ensure_collection()
+            try:
+                return self.collection.count()
+            except Exception:
+                return 0

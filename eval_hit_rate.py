@@ -64,7 +64,7 @@ def evaluate(pipeline: RagPipeline, items: list[dict], mode: str, k: int) -> dic
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Week 4 hit-rate@k evaluation")
-    parser.add_argument("--eval", default="eval/hr_eval.json")
+    parser.add_argument("--eval", default="eval/contracts_eval.json")
     parser.add_argument("--k", type=int, default=3)
     parser.add_argument("--rebuild", action="store_true")
     args = parser.parse_args()
@@ -79,7 +79,7 @@ def main() -> None:
     before = evaluate(pipeline, items, mode="semantic", k=args.k)
     after = evaluate(pipeline, items, mode="hybrid", k=args.k)
 
-    print("\n=== Week 4 · HR Policy · hit-rate@{} ===".format(args.k))
+    print("\n=== Legal Contracts · hit-rate@{} ===".format(args.k))
     print(
         f"BEFORE (semantic only): {before['hits']}/{before['total']} "
         f"= {before['hit_rate']:.2%}"

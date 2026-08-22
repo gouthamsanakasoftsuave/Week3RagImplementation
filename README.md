@@ -1,9 +1,16 @@
-# Week3RagImplementation
+# Ask Legal Contracts (RAG)
 
-Retrieval-Augmented Generation (RAG) mini app — ask questions over your own documents with grounded answers and sources.
+Retrieval-Augmented Generation mini app — ask questions over **legal contracts** with grounded answers and sources.
 
-Week 3: load → chunk → embed → retrieve → grounded answer  
-Week 4: hybrid search (BM25 + semantic + RRF), inspection view, hit-rate@3  
+This is not legal advice. Answers come only from files you put in `documents/`.
+
+## Sample contracts
+
+The repo includes three fictional sample files you can replace with your own PDFs or text:
+
+- `documents/nda.txt`
+- `documents/msa.txt`
+- `documents/employment_agreement.txt`
 
 ## Run locally
 
@@ -20,7 +27,7 @@ Add your `GROQ_API_KEY` to `.env`, then:
 streamlit run app.py
 ```
 
-Open http://localhost:8501, click **Rebuild index**, and ask a question.
+Open http://localhost:8501, click **Rebuild index**, and ask a question (for example: *What does the Limitation of Liability clause say?*).
 
 ## OCR (scanned / image PDFs)
 
@@ -51,8 +58,10 @@ Then rebuild the index. Image files (`.png`, `.jpg`, …) in `documents/` are al
 
 Without Tesseract installed, the app still runs — it just skips OCR and uses digital text only.
 
-## Week 4 eval
+## Retrieval eval
 
 ```powershell
-python eval_hit_rate.py --k 3
+python eval_hit_rate.py --k 3 --rebuild
 ```
+
+Eval questions live in `eval/contracts_eval.json`. If you replace the sample contracts, update `expected_source` and `expected_phrases` to match your files.

@@ -14,9 +14,6 @@ _HEADING_RE = re.compile(
     r"under the heading\s+(.+?)(?:\s+in\s+the\s+|\s+in\s+|\s*$)",
     re.I,
 )
-_KNOWN_HEADINGS = [
-    "Health and Safety, Security, Fire",
-]
 
 
 def tokenize(text: str) -> list[str]:
@@ -24,16 +21,12 @@ def tokenize(text: str) -> list[str]:
 
 
 def extract_focus_queries(query: str) -> list[str]:
-    """Pull exact headings/phrases out of a messy user question for BM25."""
+    """Pull quoted phrases and 'under the heading …' text for extra BM25 passes."""
     found: list[str] = []
     for m in _QUOTED_RE.finditer(query or ""):
         found.append(next(g for g in m.groups() if g))
     for m in _HEADING_RE.finditer(query or ""):
         found.append(m.group(1).strip(" \"'"))
-    lower_q = (query or "").lower()
-    for heading in _KNOWN_HEADINGS:
-        if heading.lower() in lower_q:
-            found.append(heading)
     out: list[str] = []
     seen: set[str] = set()
     for item in found:
