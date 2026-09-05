@@ -73,6 +73,18 @@ python eval/week5_langfuse.py
 
 Then open Langfuse → **Traces** (session `week5-error-analysis`) and **Datasets** → `week5-spa-error-analysis`.
 
+## Agent vs workflow (Week 7 · Track F)
+
+Hand-built ReAct loop (not LangGraph): think → tool → observe → repeat, with max steps / tokens / time. Same multi-hop contract tasks also run as a **fixed** sequence (list contracts → search each part → one answer).
+
+In the app: tabs **Agent loop**, **Fixed workflow**, **Agent vs workflow race**.
+
+```powershell
+python eval/week7_race.py
+```
+
+Results: `eval/week7_race.json` (speed, Groq tokens/cost, phrase reliability, and which one to ship).
+
 ## Retrieval eval (Week 4)
 
 ```powershell

@@ -32,6 +32,9 @@ class RagAnswer:
     sources: list[str]
     chunks_used: list[RetrievedChunk]
     grounded: bool
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    llm_calls: int = 0
 
 
 def build_context(chunks: list[RetrievedChunk]) -> str:
@@ -60,6 +63,9 @@ def generate_answer(
             sources=[],
             chunks_used=[],
             grounded=False,
+            prompt_tokens=0,
+            completion_tokens=0,
+            llm_calls=0,
         )
 
     client = Groq(api_key=api_key or os.getenv("GROQ_API_KEY"))
@@ -108,14 +114,18 @@ def generate_answer(
                 update["usage_details"] = usage_details
             gen.update(**update)
     else:
-        answer, _ = _call()
+        answer, usage_details = _call()
 
     sources = sorted({c.source for c in chunks})
     grounded = "i don't know based on the provided documents" not in answer.lower()
+    usage_details = usage_details or {}
 
     return RagAnswer(
         answer=answer,
         sources=sources,
         chunks_used=chunks,
         grounded=grounded,
+        prompt_tokens=int(usage_details.get("input", 0) or 0),
+        completion_tokens=int(usage_details.get("output", 0) or 0),
+        llm_calls=1,
     )

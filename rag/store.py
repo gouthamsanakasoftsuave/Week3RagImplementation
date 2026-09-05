@@ -245,6 +245,40 @@ class VectorStore:
         )
         return [_from_hit(h) for h in fused]
 
+    def list_sources(self) -> list[str]:
+        self._ensure_collection()
+        if self.collection.count() == 0:
+            return []
+        raw = self.collection.get(include=["metadatas"])
+        names = {
+            str((meta or {}).get("source") or "")
+            for meta in (raw.get("metadatas") or [])
+        }
+        return sorted(n for n in names if n)
+
+    def get_chunks(self, chunk_ids: list[str]) -> list[RetrievedChunk]:
+        self._ensure_collection()
+        ids = [i for i in chunk_ids if i]
+        if not ids:
+            return []
+        raw = self.collection.get(ids=ids, include=["documents", "metadatas"])
+        found: list[RetrievedChunk] = []
+        for i, chunk_id in enumerate(raw.get("ids") or []):
+            metas = raw.get("metadatas") or []
+            docs = raw.get("documents") or []
+            meta = metas[i] if i < len(metas) and metas[i] else {}
+            content = docs[i] if i < len(docs) else ""
+            found.append(
+                RetrievedChunk(
+                    content=content or "",
+                    source=str(meta.get("source", "unknown")),
+                    chunk_id=chunk_id,
+                    score=1.0,
+                    metadata={**meta, "retrieval": "get"},
+                )
+            )
+        return found
+
     @property
     def count(self) -> int:
         self._ensure_collection()

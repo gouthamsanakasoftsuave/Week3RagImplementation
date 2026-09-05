@@ -1,0 +1,50 @@
+[
+  {
+    "id": "w7_01",
+    "question": "Who are the two parties to the Service Provider Agreement, and how much written notice does a party need to give to terminate?",
+    "should_refuse": false,
+    "must_contain_all": ["EIH Limited", "Pressman Advertising", "30"],
+    "must_contain_any": ["notice", "days"],
+    "notes": "Multi-hop: parties + termination (clause 7.1)"
+  },
+  {
+    "id": "w7_02",
+    "question": "What is the maximum aggregate liability of the Agency under the indemnity clause, and which country's law governs this agreement?",
+    "should_refuse": false,
+    "must_contain_all": ["professional fees"],
+    "must_contain_any": ["India", "Indian"],
+    "notes": "Multi-hop: liability cap + governing law"
+  },
+  {
+    "id": "w7_03",
+    "question": "Who is the contact person and email for notices to the Company, and within how many days must advertising bills be settled after the month in which ads were released?",
+    "should_refuse": false,
+    "must_contain_all": ["Sridhar", "30"],
+    "must_contain_any": ["sn.sridhar", "oberoigroup"],
+    "notes": "Multi-hop: notices + billing"
+  },
+  {
+    "id": "w7_04",
+    "question": "Can the Company terminate without notice if it thinks the Agency's services are deficient? If the parties then have a dispute, what must they try first and when can they go to arbitration?",
+    "should_refuse": false,
+    "must_contain_all": ["arbitrat"],
+    "must_contain_any": ["without notice", "with or without", "7 day", "seven day"],
+    "notes": "Multi-hop: deficient termination + dispute"
+  },
+  {
+    "id": "w7_05",
+    "question": "Who owns the creatives, advertisements, reports and other materials produced from the Agency's services, and who must indemnify whom if there is a breach of a third party's intellectual property?",
+    "should_refuse": false,
+    "must_contain_all": ["Company", "Agency"],
+    "must_contain_any": ["own", "property", "assign", "indemnif"],
+    "notes": "Multi-hop: ownership + IP indemnity"
+  },
+  {
+    "id": "w7_06",
+    "question": "What is Jordan Hale's base salary under this Service Provider Agreement, and does it require cyber insurance of $2 million?",
+    "should_refuse": true,
+    "must_contain_all": [],
+    "must_contain_any": [],
+    "notes": "Should refuse — neither fact is in the SPA"
+  }
+]

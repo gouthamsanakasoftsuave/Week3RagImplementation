@@ -192,7 +192,19 @@ If you replace the samples with your own PDFs, update `eval/contracts_eval.json`
 
 ---
 
-## 9. How to run
+## 9. Week 7 — Agents (Track F: legal contracts)
+
+Hand-built loop in `rag/agent_loop.py` (plan → tool → observe → repeat). Tools in `rag/agent_tools.py`: `list_contracts`, `search_contracts`, `read_chunk`, `recall_memory`. Budgets: max steps, tokens, wall time.
+
+Fixed workflow in `rag/agent_workflow.py` always runs the same steps (no LLM picking tools).
+
+Race: `python eval/week7_race.py` → `eval/week7_race.json`.
+
+Memory: short-term scratchpad during a run; long-term JSON summaries in `eval/agent_memory.json` with embedding recall (not mem0).
+
+---
+
+## 10. How to run
 
 ```powershell
 cd C:\Users\SanakaGoutham.N\Downloads\Week3RagImplementation
@@ -208,6 +220,6 @@ streamlit run app.py
 
 ---
 
-## 10. One-line summary
+## 11. One-line summary
 
-> We built a Legal Contracts RAG app: ingest contracts, retrieve with hybrid BM25 + semantic + RRF (clause heading boosts), generate grounded answers with citations, and measure hit-rate@3 on sample contract questions.
+> We built a Legal Contracts RAG app with a Week 7 hand-built agent loop raced against a fixed workflow on speed, cost, and reliability.
