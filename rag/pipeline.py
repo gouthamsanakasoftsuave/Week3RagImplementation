@@ -11,6 +11,13 @@ from dotenv import load_dotenv
 from rag.chunking import chunk_documents
 from rag.generate import RagAnswer, generate_answer
 from rag.loader import load_directory
+from rag.observability import (
+    chunks_payload,
+    get_langfuse,
+    session_id,
+    trace_tags,
+    tracing_enabled,
+)
 from rag.query import rewrite_query
 from rag.store import RetrievedChunk, VectorStore
 
@@ -44,12 +51,13 @@ class RagPipeline:
             persist_dir=persist_dir,
         )
 
-    def ingest(self, rebuild: bool = True) -> IngestResult:
+    def ingest(self, rebuild: bool = True, keep_preamble: bool = True) -> IngestResult:
         docs = load_directory(self.documents_dir)
         chunks = chunk_documents(
             docs,
             chunk_size=self.chunk_size,
             chunk_overlap=self.chunk_overlap,
+            keep_preamble=keep_preamble,
         )
         if rebuild:
             self.store.clear()
@@ -63,19 +71,51 @@ class RagPipeline:
         top_k: int | None = None,
         source_filter: str | None = None,
         mode: str | None = None,
+        rewrite: bool = True,
     ) -> list[RetrievedChunk]:
         k = top_k or self.top_k
         retrieval_mode = (mode or self.default_mode).lower()
-        results = self.store.search(
-            rewrite_query(question),
-            top_k=k,
-            source_filter=source_filter,
-            mode=retrieval_mode,
-        )
-        # Semantic scores are cosine similarity; hybrid RRF scores are tiny — don't reuse 0.35
-        if retrieval_mode == "semantic":
-            return [r for r in results if r.score >= self.similarity_threshold]
-        return results
+        query = rewrite_query(question) if rewrite else question
+        payload_in = {
+            "question": question,
+            "rewritten_query": query,
+            "mode": retrieval_mode,
+            "top_k": k,
+            "source_filter": source_filter,
+        }
+
+        def _search() -> list[RetrievedChunk]:
+            results = self.store.search(
+                query,
+                top_k=k,
+                source_filter=source_filter,
+                mode=retrieval_mode,
+            )
+            # Semantic scores are cosine similarity; hybrid RRF scores are tiny — don't reuse 0.35
+            if retrieval_mode == "semantic":
+                return [r for r in results if r.score >= self.similarity_threshold]
+            return results
+
+        if not tracing_enabled():
+            return _search()
+
+        from langfuse import propagate_attributes
+
+        lf = get_langfuse()
+        with propagate_attributes(
+            session_id=session_id(),
+            tags=trace_tags("retrieve"),
+            metadata={"mode": retrieval_mode},
+            version=os.getenv("LANGFUSE_RELEASE", "week5-error-analysis"),
+        ):
+            with lf.start_as_current_observation(
+                as_type="retriever",
+                name="retrieve",
+                input=payload_in,
+            ) as span:
+                results = _search()
+                span.update(output=chunks_payload(results))
+                return results
 
     def ask(
         self,
@@ -83,14 +123,53 @@ class RagPipeline:
         top_k: int | None = None,
         source_filter: str | None = None,
         mode: str | None = None,
+        rewrite: bool = True,
     ) -> RagAnswer:
-        chunks = self.retrieve(
-            question,
-            top_k=top_k,
-            source_filter=source_filter,
-            mode=mode,
-        )
-        return generate_answer(question, chunks)
+        retrieval_mode = (mode or self.default_mode).lower()
+        k = top_k or self.top_k
+        payload_in = {
+            "question": question,
+            "mode": retrieval_mode,
+            "top_k": k,
+            "source_filter": source_filter,
+        }
+
+        def _run() -> RagAnswer:
+            chunks = self.retrieve(
+                question,
+                top_k=top_k,
+                source_filter=source_filter,
+                mode=mode,
+                rewrite=rewrite,
+            )
+            return generate_answer(question, chunks)
+
+        if not tracing_enabled():
+            return _run()
+
+        from langfuse import propagate_attributes
+
+        lf = get_langfuse()
+        with lf.start_as_current_observation(
+            as_type="chain",
+            name="rag-ask",
+            input=payload_in,
+        ) as root:
+            with propagate_attributes(
+                session_id=session_id(),
+                tags=trace_tags("ask"),
+                metadata={"mode": retrieval_mode},
+                version=os.getenv("LANGFUSE_RELEASE", "week5-error-analysis"),
+            ):
+                answer = _run()
+                root.update(
+                    output={
+                        "answer": answer.answer,
+                        "grounded": answer.grounded,
+                        "sources": answer.sources,
+                    }
+                )
+                return answer
 
     def status(self) -> dict:
         return {

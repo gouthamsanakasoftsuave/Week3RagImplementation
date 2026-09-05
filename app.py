@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 from rag.pipeline import RagPipeline
 from rag.ocr import ocr_enabled, tesseract_available
+from rag.observability import flush_langfuse, tracing_enabled
 
 load_dotenv()
 
@@ -97,6 +98,17 @@ def main() -> None:
             st.info("OCR disabled (`ENABLE_OCR=false`)")
 
         st.divider()
+        st.header("Langfuse")
+        if tracing_enabled():
+            st.success("Tracing on (keys in `.env`)")
+            st.caption(
+                f"Release `{os.getenv('LANGFUSE_RELEASE', 'week5-error-analysis')}` · "
+                "each Ask is a full trace"
+            )
+        else:
+            st.info("Off — add LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY to `.env`")
+
+        st.divider()
         st.header("Retrieval (Week 4)")
         mode = st.radio(
             "Search mode",
@@ -135,19 +147,19 @@ def main() -> None:
 
     question = st.text_input(
         "Your question",
-        placeholder="e.g. What does the Limitation of Liability clause say?",
+        placeholder="e.g. Who are the two parties to the Service Provider Agreement?",
     )
     ask = st.button("Ask", type="primary")
 
     if ask and question.strip():
         q = question.strip()
         with st.spinner(f"Retrieving with **{mode}** and generating answer..."):
-            chunks = pipeline.retrieve(
-                q, top_k=top_k, source_filter=source_filter, mode=mode
-            )
             answer = pipeline.ask(
                 q, top_k=top_k, source_filter=source_filter, mode=mode
             )
+            chunks = answer.chunks_used
+            if tracing_enabled():
+                flush_langfuse()
 
         st.subheader("Inspection view (Week 4)")
         c1, c2, c3 = st.columns(3)
@@ -196,13 +208,32 @@ def main() -> None:
 
     st.divider()
     with st.expander("Sample contract questions"):
+        st.caption(
+            "Week 5 set from Service-Provider-Agreement.pdf "
+            "(copy into Your question, then Ask)."
+        )
         st.markdown(
             """
-- What does the Limitation of Liability clause say?
-- What is the Governing Law of the NDA?
-- How can either party terminate the Master Services Agreement?
-- What must the receiving party do with Confidential Information?
-- How much notice is required to terminate employment without cause?
+1. Who are the two parties to the Service Provider Agreement, and what is each party called in the contract?
+2. On what date and in which city was the Service Provider Agreement entered into?
+3. What is the face value of the Rights Equity Shares and up to what amount is the Issue aggregating?
+4. Who is the Lead Manager appointed for the Issue?
+5. What professional fee will the Agency be paid for media monitoring under the commercial terms?
+6. How much written notice does a party need to give to terminate this agreement?
+7. Which country's law governs this agreement?
+8. Which courts have exclusive jurisdiction over disputes under this agreement?
+9. Within how many days must advertising bills be settled after the month in which ads were released?
+10. If the Company asks the Agency to return Confidential Information, how soon must the Agency return it?
+11. Can the Company terminate the agreement without notice if it thinks the Agency's services are deficient?
+12. What is the maximum aggregate liability of the Agency under the indemnity clause?
+13. How long does the confidentiality clause survive after expiry or early termination of the agreement?
+14. If the parties have a dispute, what must they try first and when can they go to arbitration?
+15. Who owns the creatives, advertisements, reports and other materials produced from the Agency's services?
+16. Who is the contact person and email for notices to the Company?
+17. What is the GDPR fine in the Data Processing Agreement attached to this contract?
+18. What is Jordan Hale's base salary under this Service Provider Agreement?
+19. Does this agreement require the Agency to maintain cyber insurance of $2 million?
+20. Who must indemnify whom if there is a breach of a third party's intellectual property?
             """
         )
         st.caption("Measure retrieval with: `python eval_hit_rate.py --rebuild`")

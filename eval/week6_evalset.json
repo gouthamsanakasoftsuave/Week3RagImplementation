@@ -1,0 +1,202 @@
+[
+  {
+    "id": "t01",
+    "question": "Who are the two parties to the Service Provider Agreement, and what is each party called in the contract?",
+    "problem_type": "preamble_split",
+    "human_ok": false,
+    "should_refuse": false,
+    "must_contain_all": ["EIH Limited", "Pressman Advertising"],
+    "must_contain_any": ["Company", "Agency"],
+    "notes": "Week 5 FAIL — party names split across chunks"
+  },
+  {
+    "id": "t02",
+    "question": "On what date and in which city was the Service Provider Agreement entered into?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": ["18", "September", "2020", "New Delhi"],
+    "must_contain_any": [],
+    "notes": "Week 5 OK"
+  },
+  {
+    "id": "t03",
+    "question": "What is the face value of the Rights Equity Shares and up to what amount is the Issue aggregating?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": ["3500"],
+    "must_contain_any": ["face value", "rs 2", "2 each"],
+    "notes": "Week 5 OK — Rs 2 / up to 3500 million"
+  },
+  {
+    "id": "t04",
+    "question": "Who is the Lead Manager appointed for the Issue?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": ["Ambit Capital"],
+    "must_contain_any": [],
+    "notes": "Week 5 OK"
+  },
+  {
+    "id": "t05",
+    "question": "What professional fee will the Agency be paid for media monitoring under the commercial terms?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": ["100000"],
+    "must_contain_any": ["GST", "gst", "goods and service"],
+    "notes": "Week 5 OK"
+  },
+  {
+    "id": "t06",
+    "question": "How much written notice does a party need to give to terminate this agreement?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": ["30"],
+    "must_contain_any": ["notice", "days"],
+    "notes": "Week 5 OK — clause 7.1"
+  },
+  {
+    "id": "t07",
+    "question": "Which country's law governs this agreement?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": [],
+    "must_contain_any": ["India", "Indian"],
+    "notes": "Week 5 OK"
+  },
+  {
+    "id": "t08",
+    "question": "Which courts have exclusive jurisdiction over disputes under this agreement?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": ["Mumbai"],
+    "must_contain_any": [],
+    "notes": "Week 5 OK"
+  },
+  {
+    "id": "t09",
+    "question": "Within how many days must advertising bills be settled after the month in which ads were released?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": ["30"],
+    "must_contain_any": ["days"],
+    "notes": "Week 5 OK — clause 5.3"
+  },
+  {
+    "id": "t10",
+    "question": "If the Company asks the Agency to return Confidential Information, how soon must the Agency return it?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": ["30"],
+    "must_contain_any": ["days"],
+    "notes": "Week 5 OK — clause 8.4"
+  },
+  {
+    "id": "t11",
+    "question": "Can the Company terminate the agreement without notice if it thinks the Agency's services are deficient?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": [],
+    "must_contain_any": ["without notice", "with or without", "deficient"],
+    "notes": "Week 5 OK"
+  },
+  {
+    "id": "t12",
+    "question": "What is the maximum aggregate liability of the Agency under the indemnity clause?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": ["professional fees"],
+    "must_contain_any": ["paid", "payable"],
+    "notes": "Week 5 OK — clause 9.3"
+  },
+  {
+    "id": "t13",
+    "question": "How long does the confidentiality clause survive after expiry or early termination of the agreement?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": [],
+    "must_contain_any": ["six months", "6 months"],
+    "notes": "Week 5 OK — clause 8.7"
+  },
+  {
+    "id": "t14",
+    "question": "If the parties have a dispute, what must they try first and when can they go to arbitration?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": ["arbitrat"],
+    "must_contain_any": ["7 day", "seven day"],
+    "notes": "Week 5 OK"
+  },
+  {
+    "id": "t15",
+    "question": "Who owns the creatives, advertisements, reports and other materials produced from the Agency's services?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": ["Company"],
+    "must_contain_any": ["own", "property", "assign"],
+    "notes": "Week 5 OK — clause 8.6"
+  },
+  {
+    "id": "t16",
+    "question": "Who is the contact person and email for notices to the Company?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": ["Sridhar"],
+    "must_contain_any": ["sn.sridhar", "oberoigroup"],
+    "notes": "Week 5 OK"
+  },
+  {
+    "id": "t17",
+    "question": "What is the GDPR fine in the Data Processing Agreement attached to this contract?",
+    "problem_type": "should_refuse",
+    "human_ok": true,
+    "should_refuse": true,
+    "must_contain_all": [],
+    "must_contain_any": [],
+    "notes": "Week 5 OK — not in PDF"
+  },
+  {
+    "id": "t18",
+    "question": "What is Jordan Hale's base salary under this Service Provider Agreement?",
+    "problem_type": "should_refuse",
+    "human_ok": true,
+    "should_refuse": true,
+    "must_contain_all": [],
+    "must_contain_any": [],
+    "notes": "Week 5 OK — not in PDF"
+  },
+  {
+    "id": "t19",
+    "question": "Does this agreement require the Agency to maintain cyber insurance of $2 million?",
+    "problem_type": "should_refuse",
+    "human_ok": true,
+    "should_refuse": true,
+    "must_contain_all": [],
+    "must_contain_any": [],
+    "notes": "Week 5 OK — not in PDF"
+  },
+  {
+    "id": "t20",
+    "question": "Who must indemnify whom if there is a breach of a third party's intellectual property?",
+    "problem_type": "in_scope_clause",
+    "human_ok": true,
+    "should_refuse": false,
+    "must_contain_all": ["Agency"],
+    "must_contain_any": ["Company", "indemnif"],
+    "notes": "Week 5 OK — clause 9.1"
+  }
+]

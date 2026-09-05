@@ -58,10 +58,35 @@ Then rebuild the index. Image files (`.png`, `.jpg`, …) in `documents/` are al
 
 Without Tesseract installed, the app still runs — it just skips OCR and uses digital text only.
 
-## Retrieval eval
+## Langfuse traces (Week 5)
+
+Every Ask (Streamlit) and every eval run logs a full trace: question, retrieved chunks, Groq answer. Set keys in `.env` (Project Settings → API Keys at [cloud.langfuse.com](https://cloud.langfuse.com)). Use **EU** (`https://cloud.langfuse.com`) or **US** (`https://us.cloud.langfuse.com`) to match where you created the project.
+
+`LANGFUSE_RELEASE=week5-error-analysis` tags traces so you can filter by release in the Langfuse UI. You do not create a separate “release” object.
+
+Upload the frozen Week 5 20 traces + human OK/FAIL scores (no extra Groq calls):
+
+```powershell
+pip install -r requirements.txt
+python eval/week5_langfuse.py
+```
+
+Then open Langfuse → **Traces** (session `week5-error-analysis`) and **Datasets** → `week5-spa-error-analysis`.
+
+## Retrieval eval (Week 4)
 
 ```powershell
 python eval_hit_rate.py --k 3 --rebuild
 ```
 
 Eval questions live in `eval/contracts_eval.json`. If you replace the sample contracts, update `expected_source` and `expected_phrases` to match your files.
+
+## Answer evals (Week 6)
+
+One command — assertion checks, a validated clause-answer judge, and before/after scores per problem type (uses the Service Provider Agreement traces from Week 5):
+
+```powershell
+python eval/week6_eval.py
+```
+
+Results: `eval/week6_results.json`.

@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 from groq import Groq
 
+from rag.observability import get_langfuse, tracing_enabled
 from rag.store import RetrievedChunk
 
 SYSTEM_PROMPT = """You are a careful legal document assistant. You summarize uploaded contracts.
@@ -17,11 +18,11 @@ Rules:
 2. If the context does not contain enough information, reply exactly:
    I don't know based on the provided documents.
 3. Do not invent clauses, parties, dates, dollar amounts, or obligations.
-4. Quote or paraphrase the relevant clause text. Be concise and factual.
-5. Questions may have typos or missing spaces. If the user asks for a field or identifier
-   and that value appears in the excerpts, quote it exactly.
+4. Quottions may have typos or missing spaces. If the user asks for a field or identifier
+   and e or paraphrase the relevant clause text. Be concise and factual.
+5. Questhat value appears in the excerpts, quote it exactly.
 6. At the end of your answer, add a Sources line listing the document names you used
-   (e.g. Sources: nda.pdf, msa.pdf). Include page numbers when the excerpts provide them.
+   (e.. Sources: nda.pdf, msa.pdf). Include page numbers when the excerpts provide them.
 """
 
 
@@ -70,17 +71,45 @@ def generate_answer(
         f"Question: {question}\n\n"
         "Answer using only the context above."
     )
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": user_prompt},
+    ]
 
-    response = client.chat.completions.create(
-        model=model_name,
-        temperature=0.1,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_prompt},
-        ],
-    )
+    def _call() -> tuple[str, dict[str, int] | None]:
+        response = client.chat.completions.create(
+            model=model_name,
+            temperature=0.1,
+            messages=messages,
+        )
+        text = (response.choices[0].message.content or "").strip()
+        usage = getattr(response, "usage", None)
+        details = None
+        if usage is not None:
+            details = {
+                "input": int(getattr(usage, "prompt_tokens", 0) or 0),
+                "output": int(getattr(usage, "completion_tokens", 0) or 0),
+                "total": int(getattr(usage, "total_tokens", 0) or 0),
+            }
+        return text, details
 
-    answer = (response.choices[0].message.content or "").strip()
+    if tracing_enabled():
+        lf = get_langfuse()
+        with lf.start_as_current_observation(
+            as_type="generation",
+            name="groq-generate",
+            model=model_name,
+            input={"question": question, "messages": messages},
+            model_parameters={"temperature": 0.1},
+        ) as gen:
+            answer, usage_details = _call()
+            update: dict = {"output": answer}
+            if usage_details:
+                update["usage_details"] = usage_details
+            gen.update(**update)
+    else:
+        answer, _ = _call()
+
     sources = sorted({c.source for c in chunks})
     grounded = "i don't know based on the provided documents" not in answer.lower()
 
