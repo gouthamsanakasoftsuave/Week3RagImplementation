@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
@@ -64,6 +65,14 @@ def render_run(run: AgentRun) -> None:
         f"Mode `{run.mode}` · stop `{run.stop_reason}` · "
         f"{'grounded' if run.grounded else 'refused / incomplete'}"
     )
+    stats = run.guard_stats or {}
+    if stats:
+        st.caption(
+            f"Week 8 guards {'on' if stats.get('enabled') else 'off'} · "
+            f"loops blocked {stats.get('blocked_loops', 0)} · "
+            f"injection lines removed {stats.get('injection_lines_removed', 0)} · "
+            f"output check {stats.get('output_blocked') or 'ok'}"
+        )
     if run.memory_hits:
         st.info("Long-term memory used:\n" + "\n".join(f"- {h}" for h in run.memory_hits[:3]))
 
@@ -189,8 +198,15 @@ def main() -> None:
         st.info("No index yet. Click **Rebuild index** in the sidebar to ingest contracts.")
         return
 
-    tab_rag, tab_agent, tab_wf, tab_race = st.tabs(
-        ["RAG (one shot)", "Agent loop", "Fixed workflow", "Agent vs workflow race"]
+    tab_rag, tab_agent, tab_wf, tab_race, tab_w8, tab_w9 = st.tabs(
+        [
+            "RAG (one shot)",
+            "Agent loop",
+            "Fixed workflow",
+            "Agent vs workflow race",
+            "Week 8 trajectory",
+            "Week 9 MCP",
+        ]
     )
 
     sample_q = (
@@ -300,8 +316,21 @@ def main() -> None:
             "read_chunk, recall_memory."
         )
         aq = st.text_area("Multi-step question", value=sample_q, key="agent_q", height=90)
+        guards_on = st.checkbox(
+            "Week 8 guards (loop block, untrusted-document filter, least privilege)",
+            value=True,
+            key="agent_guards",
+        )
+        attach_attack = st.checkbox(
+            "Attach the side-letter attack to search results (indirect prompt injection)",
+            value=False,
+            key="agent_attack",
+        )
         if st.button("Run agent", type="primary", key="agent_run"):
             mem = get_memory(pipeline)
+            side_letter = None
+            if attach_attack:
+                side_letter = Path("eval/attack_docs/side-letter.txt").read_text(encoding="utf-8")
             with st.spinner("Agent loop running..."):
                 run = run_agent(
                     aq.strip(),
@@ -310,6 +339,8 @@ def main() -> None:
                     max_steps=max_steps,
                     max_tokens=int(max_tokens),
                     max_seconds=float(max_seconds),
+                    guard=guards_on,
+                    untrusted_document=side_letter,
                 )
             render_run(run)
 
@@ -377,6 +408,141 @@ def main() -> None:
         existing_race = Path("eval") / "week7_race.json"
         if existing_race.exists():
             st.caption("Last saved race file is `eval/week7_race.json`.")
+
+    with tab_w8:
+        from rag.week8 import OUT_PATH, RESIDUAL_RISK, run_week8, self_check
+
+        st.caption(
+            "Track F: score the path, not only the final answer. Trick the agent with a "
+            "side letter, then turn the guards on and measure the top failure before and after."
+        )
+        checked = self_check()
+        probes = checked["probes"]
+        c1, c2, c3 = st.columns(3)
+        c1.metric(
+            "Duplicate calls executed",
+            f"{probes['loop_duplicate_calls_executed']['before']} → {probes['loop_duplicate_calls_executed']['after']}",
+        )
+        c2.metric(
+            "Loop block rate",
+            f"{probes['loop_block_rate']['before']:.0%} → {probes['loop_block_rate']['after']:.0%}",
+        )
+        c3.metric(
+            "Canary left in the side letter",
+            f"{probes['injection_canary_exposed']['before']:.0%} → {probes['injection_canary_exposed']['after']:.0%}",
+        )
+        example = checked["worked_example"]
+        st.markdown("**Right answer, wrong path**")
+        st.write(example["what"])
+        st.write(
+            f"Before the guard: `{example['before']['trajectory_failures']}`. "
+            f"After the guard blocks the repeat: `{example['after']['trajectory_failures'] or 'none'}`."
+        )
+        st.markdown("**What can still get through**")
+        for item in RESIDUAL_RISK:
+            st.markdown(f"- {item}")
+
+        st.divider()
+        st.warning(
+            "The live batch calls Groq twice per task, then both injection attacks "
+            "with guards off and on. It takes several minutes."
+        )
+        ran = None
+        if st.button("Run Week 8 eval", type="primary", key="week8_run"):
+            with st.spinner("Scoring trajectories and injection attacks..."):
+                ran = run_week8(pipeline)
+            st.success(
+                f"Top failure `{ran['top_failure']}`: "
+                f"{ran['top_failure_rate_before']:.0%} → {ran['top_failure_rate_after']:.0%}"
+            )
+        if ran is not None:
+            _render_week8(ran)
+        elif OUT_PATH.exists():
+            saved = json.loads(OUT_PATH.read_text(encoding="utf-8"))
+            st.caption(f"Last saved file is `{OUT_PATH.as_posix()}`.")
+            _render_week8(saved)
+
+    with tab_w9:
+        st.caption(
+            "Week 9, Track F. The model runs in this app. The contract repository is a separate "
+            "MCP server. The server offers tools. It does not run the AI."
+        )
+        st.info(
+            "Host = this page plus Groq. Client = the connector in this app. "
+            "Server = the contract repository. Adding a tool means editing the server file only."
+        )
+        if st.button("Discover tools", key="mcp_discover"):
+            from rag.mcp_agent import discover_tools
+
+            with st.spinner("Asking the server which tools it has..."):
+                found = discover_tools(pipeline)
+            st.write("Discovered from the server:", ", ".join(found["discovered"]) or "(none)")
+            if found["refused"]:
+                st.warning(found["refused"])
+            with st.expander("Raw tool schemas"):
+                st.json(found["raw_tool_schemas"])
+        mcp_q = st.text_area(
+            "Question",
+            value="Who are the two parties to the Service Provider Agreement?",
+            key="mcp_q",
+            height=80,
+        )
+        if st.button("Ask through MCP", type="primary", key="mcp_ask"):
+            from rag.mcp_agent import run_mcp_agent
+
+            with st.spinner("Host is calling Groq. Tools come from the MCP server..."):
+                run = run_mcp_agent(mcp_q.strip(), pipeline)
+            discovered = (run.guard_stats or {}).get("discovered") or []
+            st.caption("Tools the server offered: " + ", ".join(discovered))
+            render_run(run)
+
+
+def _render_week8(result: dict) -> None:
+    before, after = result["before"], result["after"]
+    left, right = st.columns(2)
+    with left:
+        st.markdown("**Before guards**")
+        st.metric("Outcome pass", f"{before['outcome_rate']:.0%}")
+        st.metric("Trajectory pass", f"{before['trajectory_rate']:.0%}")
+        st.metric("Gaps (right answer, wrong path)", before["gap_count"])
+        st.metric("Cost mean USD", f"{before['cost_mean_usd']:.5f}")
+        st.metric("Cost p99 USD", f"{before['cost_p99_usd']:.5f}")
+    with right:
+        st.markdown("**After guards**")
+        st.metric("Outcome pass", f"{after['outcome_rate']:.0%}")
+        st.metric("Trajectory pass", f"{after['trajectory_rate']:.0%}")
+        st.metric("Gaps (right answer, wrong path)", after["gap_count"])
+        st.metric("Cost mean USD", f"{after['cost_mean_usd']:.5f}")
+        st.metric("Cost p99 USD", f"{after['cost_p99_usd']:.5f}")
+    st.write(
+        f"Top failure `{result['top_failure']}`: "
+        f"{result['top_failure_before']} → {result['top_failure_after']} tasks."
+    )
+    if result.get("live_gap_cases"):
+        st.markdown("**Live gap cases**")
+        for case in result["live_gap_cases"]:
+            st.markdown(f"- `{case['id']}` tools `{case['tools']}` failures `{case['trajectory_failures']}`")
+    for kind, pair in (result.get("injection") or {}).items():
+        st.markdown(
+            f"**{kind} injection:** tricked {pair['before']['tricked']} → {pair['after']['tricked']}"
+        )
+    rows = []
+    for label, chunk in (("before", result.get("before_rows") or []), ("after", result.get("after_rows") or [])):
+        for row in chunk:
+            rows.append(
+                {
+                    "when": label,
+                    "id": row["id"],
+                    "outcome": row["outcome_pass"],
+                    "trajectory": row["trajectory_pass"],
+                    "gap": row["gap"],
+                    "failures": ", ".join(row["trajectory_failures"]),
+                    "tools": ", ".join(row["tools"]),
+                    "cost_usd": row["cost_usd"],
+                }
+            )
+    if rows:
+        st.dataframe(rows)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,922 @@
+{
+  "track": "F",
+  "practical": "Week 8 Task Set F",
+  "valid_paths_are_sets": true,
+  "top_failure": "loop",
+  "mitigation": {
+    "name": "hard step limit",
+    "why": "After 3 searches, further search_contracts calls return STEP_LIMIT instead of running.",
+    "replan": false,
+    "search_limit": 3
+  },
+  "before": {
+    "n": 10,
+    "outcome_pass": 9,
+    "outcome_rate": 0.9,
+    "trajectory_pass": 7,
+    "trajectory_rate": 0.7,
+    "gap": 0.2,
+    "gap_ids": [
+      "f03",
+      "f09"
+    ],
+    "tool_choice_accuracy": 1.0,
+    "argument_validity": 1.0,
+    "step_efficiency_p50": 2.0,
+    "step_efficiency_max": 5.0,
+    "cost_p50_usd": 0.000389,
+    "cost_max_usd": 0.00081,
+    "latency_p50_ms": 19765,
+    "tokens_p50": 3511,
+    "failure_counts": {
+      "skipped_defined_term": 0,
+      "loop": 2,
+      "quiet_give_up": 1,
+      "fabricated_argument": 0,
+      "wrong_tool": 0,
+      "wrong_path": 1
+    }
+  },
+  "after": {
+    "n": 10,
+    "outcome_pass": 9,
+    "outcome_rate": 0.9,
+    "trajectory_pass": 8,
+    "trajectory_rate": 0.8,
+    "gap": 0.1,
+    "gap_ids": [
+      "f01"
+    ],
+    "tool_choice_accuracy": 1.0,
+    "argument_validity": 1.0,
+    "step_efficiency_p50": 2.0,
+    "step_efficiency_max": 4.0,
+    "cost_p50_usd": 0.000307,
+    "cost_max_usd": 0.00114,
+    "latency_p50_ms": 21417,
+    "tokens_p50": 3242,
+    "failure_counts": {
+      "skipped_defined_term": 0,
+      "loop": 1,
+      "quiet_give_up": 1,
+      "fabricated_argument": 0,
+      "wrong_tool": 0,
+      "wrong_path": 1
+    }
+  },
+  "top_mode_before": 2,
+  "top_mode_after": 1,
+  "price": {
+    "latency_p50_ms_before": 19765,
+    "latency_p50_ms_after": 21417,
+    "added_latency_p50_ms": 1652,
+    "cost_p50_usd_before": 0.000389,
+    "cost_p50_usd_after": 0.000307,
+    "added_cost_p50_usd": -8.2e-05,
+    "tokens_p50_before": 3511,
+    "tokens_p50_after": 3242,
+    "added_tokens_p50": -269
+  },
+  "regression": [
+    {
+      "mode": "skipped_defined_term",
+      "before": 0,
+      "after": 0,
+      "delta": 0,
+      "worsened": false,
+      "new": false
+    },
+    {
+      "mode": "loop",
+      "before": 2,
+      "after": 1,
+      "delta": -1,
+      "worsened": false,
+      "new": false
+    },
+    {
+      "mode": "quiet_give_up",
+      "before": 1,
+      "after": 1,
+      "delta": 0,
+      "worsened": false,
+      "new": false
+    },
+    {
+      "mode": "fabricated_argument",
+      "before": 0,
+      "after": 0,
+      "delta": 0,
+      "worsened": false,
+      "new": false
+    },
+    {
+      "mode": "wrong_tool",
+      "before": 0,
+      "after": 0,
+      "delta": 0,
+      "worsened": false,
+      "new": false
+    },
+    {
+      "mode": "wrong_path",
+      "before": 1,
+      "after": 1,
+      "delta": 0,
+      "worsened": false,
+      "new": false
+    }
+  ],
+  "regression_worsened": [],
+  "gap_case": {
+    "id": "f03",
+    "question": "Which country's law governs this Service Provider Agreement?",
+    "answer": "The agreement is governed by **Indian law**.  \nSources: Service-Provider-Agreement.pdf (page\u202f13, clause\u202f10.1)",
+    "tools": [
+      "list_contracts",
+      "search_contracts",
+      "search_contracts",
+      "search_contracts"
+    ],
+    "queries": [
+      "governing law",
+      "Governing law",
+      "governed by law"
+    ],
+    "trajectory_failures": [
+      "loop"
+    ],
+    "why": "The answer passed the phrase check. The path failed: loop. Tools: list_contracts, search_contracts, search_contracts, search_contracts. Queries were governing law, Governing law, and governed by law — the same fact three times."
+  },
+  "before_rows": [
+    {
+      "id": "f01",
+      "question": "How many days' prior notice does a party need to give to terminate the Service Provider Agreement? Answer the number, and resolve the defined term Notice that this clause depends on.",
+      "answer": "**Number of days\u2019 prior notice required to terminate the Service Provider Agreement:**  \n30 days\n\n**Definition of the term \u201cNotice\u201d that the termination clause refers to:**  \n> \u201cAny notice, demand, communication or other request (individually, a \u2018Notice\u2019) to be given or made under this Agreement shall be in writing in the English language. Such Notice shall be delivered by hand, airmail (postage prepaid), recognized overnight courier service, email or facsimile to the Party to which it is addressed at such \u2026\u201d (see Service\u2011Provider\u2011Agreement.pdf, clause 12.9).  \n\n**Sources**  \n- Service\u2011Provider\u2011Agreement.pdf (termination clause, page\u202f11)  \n- Service\u2011Provider\u2011Agreement.pdf (definition of \u201cNotice\u201d, page\u202f16)",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": true,
+      "trajectory_failures": [],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts",
+        "search_contracts",
+        "read_chunk"
+      ],
+      "queries": [
+        "termination notice period",
+        "\"Notice\" defined"
+      ],
+      "alternate_paths": [
+        "search the termination clause, then search the Notice definition in clause 12.9",
+        "search the Notice definition in clause 12.9, then search the termination clause",
+        "one search whose returned text already contains both the 30-day clause and the Notice definition"
+      ],
+      "steps_taken": 4,
+      "steps_needed": 2,
+      "step_efficiency": 2.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 4,
+      "choice_checks": 4,
+      "arg_valid": 5,
+      "arg_checks": 5,
+      "elapsed_ms": 6697,
+      "total_tokens": 6574,
+      "cost_usd": 0.00067,
+      "stop_reason": "finished",
+      "replans": 0
+    },
+    {
+      "id": "f02",
+      "question": "Who are the two parties to the Service Provider Agreement?",
+      "answer": "The Service Provider Agreement is between:\n\n1. **EIH LIMITED** \u2013 the issuer/company (referred to as the \u201cIssuer\u201d or \u201cCompany\u201d in the agreement).  \n2. **PRESSMAN ADVERTISING LIMITED** \u2013 the agency providing the services (referred to as the \u201cAgency\u201d in the agreement).  \n\nSources: Service\u2011Provider\u2011Agreement.pdf (page\u202f4, clause \u201cby and between\u201d).",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": true,
+      "trajectory_failures": [],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "parties to the Service Provider Agreement"
+      ],
+      "alternate_paths": [
+        "search_contracts",
+        "list_contracts then search_contracts"
+      ],
+      "steps_taken": 2,
+      "steps_needed": 1,
+      "step_efficiency": 2.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 2,
+      "choice_checks": 2,
+      "arg_valid": 2,
+      "arg_checks": 2,
+      "elapsed_ms": 2462,
+      "total_tokens": 2464,
+      "cost_usd": 0.000236,
+      "stop_reason": "finished",
+      "replans": 0
+    },
+    {
+      "id": "f03",
+      "question": "Which country's law governs this Service Provider Agreement?",
+      "answer": "The agreement is governed by **Indian law**.  \nSources: Service-Provider-Agreement.pdf (page\u202f13, clause\u202f10.1)",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": false,
+      "trajectory_failures": [
+        "loop"
+      ],
+      "gap": true,
+      "tools": [
+        "list_contracts",
+        "search_contracts",
+        "search_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "governing law",
+        "Governing law",
+        "governed by law"
+      ],
+      "alternate_paths": [
+        "search_contracts",
+        "list_contracts then search_contracts"
+      ],
+      "steps_taken": 4,
+      "steps_needed": 1,
+      "step_efficiency": 4.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 4,
+      "choice_checks": 4,
+      "arg_valid": 5,
+      "arg_checks": 5,
+      "elapsed_ms": 45965,
+      "total_tokens": 6292,
+      "cost_usd": 0.000541,
+      "stop_reason": "finished",
+      "replans": 0
+    },
+    {
+      "id": "f04",
+      "question": "What date does the defined term Effective Date mean in this agreement?",
+      "answer": "The defined term **Effective Date** in the agreement means **18\u202fSeptember\u202f2020**.  \n\nSources: Service\u2011Provider\u2011Agreement.pdf (definition of Effective Date).",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": true,
+      "trajectory_failures": [],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "Effective Date"
+      ],
+      "alternate_paths": [
+        "search_contracts for Effective Date",
+        "list_contracts then search_contracts for Effective Date"
+      ],
+      "steps_taken": 2,
+      "steps_needed": 1,
+      "step_efficiency": 2.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 2,
+      "choice_checks": 2,
+      "arg_valid": 2,
+      "arg_checks": 2,
+      "elapsed_ms": 15944,
+      "total_tokens": 2433,
+      "cost_usd": 0.000223,
+      "stop_reason": "finished",
+      "replans": 0
+    },
+    {
+      "id": "f05",
+      "question": "What is the maximum aggregate liability of the Agency under the indemnity clause?",
+      "answer": "The indemnity clause limits the Agency\u2019s maximum aggregate liability to the total professional fees paid and payable by the Company to the Agency under this Agreement.  \n\nSources: Service\u2011Provider\u2011Agreement.pdf (page\u202f13, clauses\u202f9.3\u20119.4)",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": true,
+      "trajectory_failures": [],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "indemnity clause maximum aggregate liability Agency"
+      ],
+      "alternate_paths": [
+        "search_contracts",
+        "list_contracts then search_contracts"
+      ],
+      "steps_taken": 2,
+      "steps_needed": 1,
+      "step_efficiency": 2.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 2,
+      "choice_checks": 2,
+      "arg_valid": 4,
+      "arg_checks": 4,
+      "elapsed_ms": 16901,
+      "total_tokens": 2377,
+      "cost_usd": 0.00023,
+      "stop_reason": "finished",
+      "replans": 0
+    },
+    {
+      "id": "f06",
+      "question": "Who is the contact person and email for notices to the Company, and within how many days must advertising bills be settled after the month in which the ads were released?",
+      "answer": "I don't know based on the provided documents.",
+      "outcome_pass": false,
+      "outcome_failures": [
+        "refused but the clauses are in the contract",
+        "missing required phrase: Sridhar",
+        "missing required phrase: 30",
+        "missing any of: ['sridhar', 'oberoi']"
+      ],
+      "trajectory_pass": false,
+      "trajectory_failures": [
+        "wrong_path",
+        "quiet_give_up"
+      ],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts",
+        "search_contracts",
+        "search_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "contact person email notices to the Company",
+        "contact person email for notices to the Company",
+        "contact person email notices to the Company contact person email",
+        "contact person email"
+      ],
+      "alternate_paths": [
+        "search the notice contact, then search the billing clause",
+        "search the billing clause, then search the notice contact",
+        "one search whose text contains both the contact and the 30-day billing clause"
+      ],
+      "steps_taken": 5,
+      "steps_needed": 2,
+      "step_efficiency": 2.5,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 5,
+      "choice_checks": 5,
+      "arg_valid": 5,
+      "arg_checks": 5,
+      "elapsed_ms": 71244,
+      "total_tokens": 9109,
+      "cost_usd": 0.00081,
+      "stop_reason": "max_time",
+      "replans": 0
+    },
+    {
+      "id": "f07",
+      "question": "Can the Company terminate without notice if the Agency's services are deficient? If the parties then have a dispute, what must they try first, and when can they go to arbitration?",
+      "answer": "**Termination without notice for deficient services**  \nYes. The Agreement expressly allows the Company to terminate the Agreement \u201cwith or without notice, at any time, in the event the Company forms an opinion that the Agency is providing deficient services.\u201d\u3010Service-Provider-Agreement.pdf::p12::c0\u3011\n\n**First step in a dispute**  \nThe parties must first negotiate in good faith and attempt an amicable arrangement or compromise. A notice of dispute must be issued, and the parties have seven days to resolve the matter amicably. Only if they fail to do so may they proceed to arbitration.\u3010Service-Provider-Agreement.pdf::p14::c0\u3011\u3010Service-Provider-Agreement.pdf::p14::c1\u3011\n\n**When arbitration can be invoked**  \nArbitration may be initiated after the seven\u2011day period of failed amicable resolution. If the parties cannot resolve the dispute within those seven days, the dispute may be referred to arbitration as set out in Clause\u202f10.\u3010Service-Provider-Agreement.pdf::p14::c1\u3011\n\n**Sources**  \n- Service-Provider-Agreement.pdf (page\u202f12, clause\u202f7.1)  \n- Service-Provider-Agreement.pdf (page\u202f14, clauses\u202f10.2\u201110.3)",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": true,
+      "trajectory_failures": [],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "termination notice period deficient services",
+        "dispute resolution mediation"
+      ],
+      "alternate_paths": [
+        "search deficient-service termination, then search the dispute clause",
+        "search the dispute clause, then search deficient-service termination",
+        "one search whose text contains both"
+      ],
+      "steps_taken": 3,
+      "steps_needed": 2,
+      "step_efficiency": 1.5,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 3,
+      "choice_checks": 3,
+      "arg_valid": 6,
+      "arg_checks": 6,
+      "elapsed_ms": 30614,
+      "total_tokens": 4508,
+      "cost_usd": 0.00051,
+      "stop_reason": "finished",
+      "replans": 0
+    },
+    {
+      "id": "f08",
+      "question": "Who owns the creatives, advertisements, reports and other materials produced from the Agency's services?",
+      "answer": "The contract states that all creative work, advertisements, reports, and any other materials produced by the Agency as part of its services are **solely owned by the Company**. The Agency irrevocably assigns all rights, title, and interest in such materials to the Company.  \n\n**Source:** Service-Provider-Agreement.pdf \u2013 clause on ownership of materials (page\u202f13).",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": true,
+      "trajectory_failures": [],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "ownership of creatives advertisements reports materials produced from Agency's services"
+      ],
+      "alternate_paths": [
+        "search_contracts",
+        "list_contracts then search_contracts"
+      ],
+      "steps_taken": 2,
+      "steps_needed": 1,
+      "step_efficiency": 2.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 2,
+      "choice_checks": 2,
+      "arg_valid": 2,
+      "arg_checks": 2,
+      "elapsed_ms": 20889,
+      "total_tokens": 2515,
+      "cost_usd": 0.000268,
+      "stop_reason": "finished",
+      "replans": 0
+    },
+    {
+      "id": "f09",
+      "question": "What is Jordan Hale's base salary under this Service Provider Agreement, and does it require cyber insurance of $2 million?",
+      "answer": "I don't know based on the provided documents.",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": false,
+      "trajectory_failures": [
+        "loop"
+      ],
+      "gap": true,
+      "tools": [
+        "list_contracts",
+        "search_contracts",
+        "search_contracts",
+        "search_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "Jordan Hale",
+        "base salary",
+        "Hale",
+        "Jordan"
+      ],
+      "alternate_paths": [
+        "search_contracts, then refuse",
+        "list_contracts, search_contracts, then refuse"
+      ],
+      "steps_taken": 5,
+      "steps_needed": 1,
+      "step_efficiency": 5.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 5,
+      "choice_checks": 5,
+      "arg_valid": 5,
+      "arg_checks": 5,
+      "elapsed_ms": 63976,
+      "total_tokens": 8918,
+      "cost_usd": 0.000784,
+      "stop_reason": "max_time",
+      "replans": 0
+    },
+    {
+      "id": "f10",
+      "question": "In what language must a Notice under this agreement be given, and how can it be delivered?",
+      "answer": "The Notice must be in **English**.  \nIt can be delivered **by hand, airmail (postage prepaid), a recognized overnight courier service, email, or facsimile** to the party to which it is addressed.  \n\nSources: Service\u2011Provider\u2011Agreement.pdf (page\u202f16)",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": true,
+      "trajectory_failures": [],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "Notice language must be given language Notice delivered"
+      ],
+      "alternate_paths": [
+        "search the Notice definition",
+        "list_contracts then search the Notice definition"
+      ],
+      "steps_taken": 2,
+      "steps_needed": 1,
+      "step_efficiency": 2.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 2,
+      "choice_checks": 2,
+      "arg_valid": 2,
+      "arg_checks": 2,
+      "elapsed_ms": 18642,
+      "total_tokens": 2263,
+      "cost_usd": 0.000224,
+      "stop_reason": "finished",
+      "replans": 0
+    }
+  ],
+  "after_rows": [
+    {
+      "id": "f01",
+      "question": "How many days' prior notice does a party need to give to terminate the Service Provider Agreement? Answer the number, and resolve the defined term Notice that this clause depends on.",
+      "answer": "**Number of days\u2019 prior notice required:** 30 days  \n\n**Definition of \u201cNotice\u201d (as used in the termination clause):**  \nA \u201cNotice\u201d is any notice, demand, communication or other request that is given or made under the Agreement, is in writing, is in the English language, and is delivered by hand, airmail (postage prepaid), a recognized overnight courier service, email, or facsimile to the Party to which it is addressed.",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": false,
+      "trajectory_failures": [
+        "loop"
+      ],
+      "gap": true,
+      "tools": [
+        "list_contracts",
+        "search_contracts",
+        "search_contracts",
+        "read_chunk",
+        "search_contracts",
+        "read_chunk"
+      ],
+      "queries": [
+        "termination notice period",
+        "\"Notice\" defined",
+        "Notice shall be delivered by hand, airmail"
+      ],
+      "alternate_paths": [
+        "search the termination clause, then search the Notice definition in clause 12.9",
+        "search the Notice definition in clause 12.9, then search the termination clause",
+        "one search whose returned text already contains both the 30-day clause and the Notice definition"
+      ],
+      "steps_taken": 6,
+      "steps_needed": 2,
+      "step_efficiency": 3.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 6,
+      "choice_checks": 6,
+      "arg_valid": 6,
+      "arg_checks": 6,
+      "elapsed_ms": 78935,
+      "total_tokens": 11468,
+      "cost_usd": 0.00114,
+      "stop_reason": "max_steps",
+      "replans": 0
+    },
+    {
+      "id": "f02",
+      "question": "Who are the two parties to the Service Provider Agreement?",
+      "answer": "The Service Provider Agreement is between:\n\n1. **EIH LIMITED** \u2013 the issuer/company (referred to as the \u201cIssuer\u201d or \u201cCompany\u201d in the agreement).  \n2. **PRESSMAN ADVERTISING LIMITED** \u2013 the agency providing the services (referred to as the \u201cAgency\u201d in the agreement).  \n\n**Sources:**  \n- Service-Provider-Agreement.pdf, page\u202f4, chunk\u202f2.",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": true,
+      "trajectory_failures": [],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "parties to the Service Provider Agreement"
+      ],
+      "alternate_paths": [
+        "search_contracts",
+        "list_contracts then search_contracts"
+      ],
+      "steps_taken": 2,
+      "steps_needed": 1,
+      "step_efficiency": 2.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 2,
+      "choice_checks": 2,
+      "arg_valid": 2,
+      "arg_checks": 2,
+      "elapsed_ms": 17981,
+      "total_tokens": 2465,
+      "cost_usd": 0.000236,
+      "stop_reason": "finished",
+      "replans": 0
+    },
+    {
+      "id": "f03",
+      "question": "Which country's law governs this Service Provider Agreement?",
+      "answer": "The Service Provider Agreement is governed by Indian law.  \n\nSources: Service-Provider-Agreement.pdf (page\u202f13)",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": true,
+      "trajectory_failures": [],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "governing law",
+        "governing law shall be"
+      ],
+      "alternate_paths": [
+        "search_contracts",
+        "list_contracts then search_contracts"
+      ],
+      "steps_taken": 3,
+      "steps_needed": 1,
+      "step_efficiency": 3.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 3,
+      "choice_checks": 3,
+      "arg_valid": 3,
+      "arg_checks": 3,
+      "elapsed_ms": 23922,
+      "total_tokens": 3933,
+      "cost_usd": 0.000342,
+      "stop_reason": "finished",
+      "replans": 0
+    },
+    {
+      "id": "f04",
+      "question": "What date does the defined term Effective Date mean in this agreement?",
+      "answer": "The defined term \u201cEffective Date\u201d in the agreement means **18\u202fSeptember\u202f2020**.  \n\nSources: Service\u2011Provider\u2011Agreement.pdf (definition section)",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": true,
+      "trajectory_failures": [],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "Effective Date defined term"
+      ],
+      "alternate_paths": [
+        "search_contracts for Effective Date",
+        "list_contracts then search_contracts for Effective Date"
+      ],
+      "steps_taken": 2,
+      "steps_needed": 1,
+      "step_efficiency": 2.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 2,
+      "choice_checks": 2,
+      "arg_valid": 2,
+      "arg_checks": 2,
+      "elapsed_ms": 13584,
+      "total_tokens": 2435,
+      "cost_usd": 0.000222,
+      "stop_reason": "finished",
+      "replans": 0
+    },
+    {
+      "id": "f05",
+      "question": "What is the maximum aggregate liability of the Agency under the indemnity clause?",
+      "answer": "The indemnity clause limits the Agency\u2019s maximum aggregate liability to the total amount of professional fees that the Company has paid or will pay to the Agency under this Agreement.  \n\n**Source:** Service\u2011Provider\u2011Agreement.pdf, clause 9.3 (page\u202f13).",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": true,
+      "trajectory_failures": [],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "maximum aggregate liability of the Agency under the indemnity clause"
+      ],
+      "alternate_paths": [
+        "search_contracts",
+        "list_contracts then search_contracts"
+      ],
+      "steps_taken": 2,
+      "steps_needed": 1,
+      "step_efficiency": 2.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 2,
+      "choice_checks": 2,
+      "arg_valid": 3,
+      "arg_checks": 3,
+      "elapsed_ms": 10864,
+      "total_tokens": 2426,
+      "cost_usd": 0.000244,
+      "stop_reason": "finished",
+      "replans": 0
+    },
+    {
+      "id": "f06",
+      "question": "Who is the contact person and email for notices to the Company, and within how many days must advertising bills be settled after the month in which the ads were released?",
+      "answer": "I don't know based on the provided documents.",
+      "outcome_pass": false,
+      "outcome_failures": [
+        "refused but the clauses are in the contract",
+        "missing required phrase: Sridhar",
+        "missing required phrase: 30",
+        "missing any of: ['sridhar', 'oberoi']"
+      ],
+      "trajectory_pass": false,
+      "trajectory_failures": [
+        "wrong_path",
+        "quiet_give_up"
+      ],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts",
+        "search_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "contact person email notices Company advertising bills settled days month",
+        "contact person email Company notice",
+        "contact person email for notices to the Company"
+      ],
+      "alternate_paths": [
+        "search the notice contact, then search the billing clause",
+        "search the billing clause, then search the notice contact",
+        "one search whose text contains both the contact and the 30-day billing clause"
+      ],
+      "steps_taken": 4,
+      "steps_needed": 2,
+      "step_efficiency": 2.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 4,
+      "choice_checks": 4,
+      "arg_valid": 4,
+      "arg_checks": 4,
+      "elapsed_ms": 64570,
+      "total_tokens": 8712,
+      "cost_usd": 0.000834,
+      "stop_reason": "max_time",
+      "replans": 0
+    },
+    {
+      "id": "f07",
+      "question": "Can the Company terminate without notice if the Agency's services are deficient? If the parties then have a dispute, what must they try first, and when can they go to arbitration?",
+      "answer": "**Termination for deficient services**\n\n- The Company may terminate the Agreement *without notice* if it believes the Agency is providing deficient services.  \n  - *Clause 7.2* states: \u201cthe Company shall have the discretion to terminate this Agreement with or without notice, at any time, in the event the Company forms an opinion that the Agency is providing deficient services.\u201d  \n  - The Company must still give the Agency a \u201csufficient opportunity to be heard\u201d before terminating, and the Company\u2019s decision is final and binding.  \n  - Source: *Service-Provider-Agreement.pdf* (chunk_id\u202f=\u202fService-Provider-Agreement.pdf::p12::c0).\n\n**Dispute resolution**\n\n- When a dispute arises, the parties must first try to resolve it amicably.  \n  - *Clause 10.2* requires that a notice be issued and that the parties attempt an amicable arrangement and compromise.  \n  - If they fail to resolve the dispute within **seven days** after the notice, they may then proceed to arbitration.  \n  - Source: *Service-Provider-Agreement.pdf* (chunk_id\u202f=\u202fService-Provider-Agreement.pdf::p14::c1).\n\n**Summary**\n\n1. **Termination without notice** \u2013 Yes, the Company can terminate without notice for deficient services, but must give the Agency a chance to be heard first.  \n2. **Dispute resolution** \u2013 The parties must first attempt an amicable arrangement and compromise; if unresolved within seven days, they may go to arbitration.  \n\nSources: Service-Provider-Agreement.pdf.",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": true,
+      "trajectory_failures": [],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "termination notice period",
+        "termination for deficient services"
+      ],
+      "alternate_paths": [
+        "search deficient-service termination, then search the dispute clause",
+        "search the dispute clause, then search deficient-service termination",
+        "one search whose text contains both"
+      ],
+      "steps_taken": 3,
+      "steps_needed": 2,
+      "step_efficiency": 1.5,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 3,
+      "choice_checks": 3,
+      "arg_valid": 5,
+      "arg_checks": 5,
+      "elapsed_ms": 26807,
+      "total_tokens": 4481,
+      "cost_usd": 0.000499,
+      "stop_reason": "finished",
+      "replans": 0
+    },
+    {
+      "id": "f08",
+      "question": "Who owns the creatives, advertisements, reports and other materials produced from the Agency's services?",
+      "answer": "The Agency\u2019s work\u2014including all creatives, advertisements, reports and any other materials produced as part of its services\u2014belongs to the Company. The Agreement states that such materials are the sole and exclusive property of the Company, and the Agency irrevocably assigns all rights, title and interest in them to the Company.  \n\nSources: Service\u2011Provider\u2011Agreement.pdf (page\u202f13)",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": true,
+      "trajectory_failures": [],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "ownership of creatives advertisements reports materials produced from Agency's services"
+      ],
+      "alternate_paths": [
+        "search_contracts",
+        "list_contracts then search_contracts"
+      ],
+      "steps_taken": 2,
+      "steps_needed": 1,
+      "step_efficiency": 2.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 2,
+      "choice_checks": 2,
+      "arg_valid": 2,
+      "arg_checks": 2,
+      "elapsed_ms": 18141,
+      "total_tokens": 2527,
+      "cost_usd": 0.000271,
+      "stop_reason": "finished",
+      "replans": 0
+    },
+    {
+      "id": "f09",
+      "question": "What is Jordan Hale's base salary under this Service Provider Agreement, and does it require cyber insurance of $2 million?",
+      "answer": "I don't know based on the provided documents.",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": true,
+      "trajectory_failures": [],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts",
+        "search_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "Jordan Hale base salary",
+        "Jordan Hale salary",
+        "Jordan"
+      ],
+      "alternate_paths": [
+        "search_contracts, then refuse",
+        "list_contracts, search_contracts, then refuse"
+      ],
+      "steps_taken": 4,
+      "steps_needed": 1,
+      "step_efficiency": 4.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 4,
+      "choice_checks": 4,
+      "arg_valid": 4,
+      "arg_checks": 4,
+      "elapsed_ms": 62085,
+      "total_tokens": 8738,
+      "cost_usd": 0.000747,
+      "stop_reason": "max_time",
+      "replans": 0
+    },
+    {
+      "id": "f10",
+      "question": "In what language must a Notice under this agreement be given, and how can it be delivered?",
+      "answer": "The agreement requires that any Notice be **written in English**.  \nIt may be delivered **by hand, airmail (postage prepaid), a recognized overnight courier service, email, or facsimile** to the party to which it is addressed.  \n\nSources: Service\u2011Provider\u2011Agreement.pdf (see clause 12.9).",
+      "outcome_pass": true,
+      "outcome_failures": [],
+      "trajectory_pass": true,
+      "trajectory_failures": [],
+      "gap": false,
+      "tools": [
+        "list_contracts",
+        "search_contracts"
+      ],
+      "queries": [
+        "Notice language must be given language Notice under this agreement be given and how can it be delivered"
+      ],
+      "alternate_paths": [
+        "search the Notice definition",
+        "list_contracts then search the Notice definition"
+      ],
+      "steps_taken": 2,
+      "steps_needed": 1,
+      "step_efficiency": 2.0,
+      "tool_choice_accuracy": 1.0,
+      "argument_validity": 1.0,
+      "choice_valid": 2,
+      "choice_checks": 2,
+      "arg_valid": 3,
+      "arg_checks": 3,
+      "elapsed_ms": 18912,
+      "total_tokens": 2551,
+      "cost_usd": 0.000263,
+      "stop_reason": "finished",
+      "replans": 0
+    }
+  ]
+}

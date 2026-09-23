@@ -1,0 +1,187 @@
+[
+  {
+    "id": "f01",
+    "question": "How many days' prior notice does a party need to give to terminate the Service Provider Agreement? Answer the number, and resolve the defined term Notice that this clause depends on.",
+    "should_refuse": false,
+    "must_contain_all": ["30"],
+    "must_contain_any": ["notice", "day"],
+    "steps_needed": 2,
+    "alternate_paths": true,
+    "valid_paths": [
+      "search the termination clause, then search the Notice definition in clause 12.9",
+      "search the Notice definition in clause 12.9, then search the termination clause",
+      "one search whose returned text already contains both the 30-day clause and the Notice definition"
+    ],
+    "groups": [
+      {"id": "termination", "any": ["30"]},
+      {"id": "notice_definition", "any": ["english language", "deemed to have been duly given", "overnight courier", "12.9"]}
+    ],
+    "defined_term": "Notice",
+    "notes": "Outcome passes on 30 days alone. Trajectory fails if clause 12.9 was never retrieved. Either order is valid."
+  },
+  {
+    "id": "f02",
+    "question": "Who are the two parties to the Service Provider Agreement?",
+    "should_refuse": false,
+    "must_contain_all": ["EIH", "Pressman"],
+    "must_contain_any": [],
+    "steps_needed": 1,
+    "alternate_paths": true,
+    "valid_paths": [
+      "search_contracts",
+      "list_contracts then search_contracts"
+    ],
+    "groups": [
+      {"id": "party_eih", "any": ["eih"]},
+      {"id": "party_pressman", "any": ["pressman"]}
+    ],
+    "defined_term": null,
+    "notes": "Listing the file first or searching immediately are both valid. A following read_chunk is allowed."
+  },
+  {
+    "id": "f03",
+    "question": "Which country's law governs this Service Provider Agreement?",
+    "should_refuse": false,
+    "must_contain_all": [],
+    "must_contain_any": ["India", "Indian"],
+    "steps_needed": 1,
+    "alternate_paths": true,
+    "valid_paths": [
+      "search_contracts",
+      "list_contracts then search_contracts"
+    ],
+    "groups": [
+      {"id": "law", "any": ["india"]}
+    ],
+    "defined_term": null,
+    "notes": "Single fact. List-then-search and search-only are both accepted."
+  },
+  {
+    "id": "f04",
+    "question": "What date does the defined term Effective Date mean in this agreement?",
+    "should_refuse": false,
+    "must_contain_all": ["2020"],
+    "must_contain_any": ["September", "18"],
+    "steps_needed": 1,
+    "alternate_paths": true,
+    "valid_paths": [
+      "search_contracts for Effective Date",
+      "list_contracts then search_contracts for Effective Date"
+    ],
+    "groups": [
+      {"id": "effective_date", "any": ["2020", "september"]}
+    ],
+    "defined_term": "Effective Date",
+    "notes": "The definition itself is the answer. One retrieval that contains the definition is enough."
+  },
+  {
+    "id": "f05",
+    "question": "What is the maximum aggregate liability of the Agency under the indemnity clause?",
+    "should_refuse": false,
+    "must_contain_all": ["professional fee"],
+    "must_contain_any": [],
+    "steps_needed": 1,
+    "alternate_paths": true,
+    "valid_paths": [
+      "search_contracts",
+      "list_contracts then search_contracts"
+    ],
+    "groups": [
+      {"id": "liability", "any": ["professional fee"]}
+    ],
+    "defined_term": null,
+    "notes": "Single clause. Optional read of the returned chunk is not a different required sequence."
+  },
+  {
+    "id": "f06",
+    "question": "Who is the contact person and email for notices to the Company, and within how many days must advertising bills be settled after the month in which the ads were released?",
+    "should_refuse": false,
+    "must_contain_all": ["Sridhar", "30"],
+    "must_contain_any": ["sridhar", "oberoi"],
+    "steps_needed": 2,
+    "alternate_paths": true,
+    "valid_paths": [
+      "search the notice contact, then search the billing clause",
+      "search the billing clause, then search the notice contact",
+      "one search whose text contains both the contact and the 30-day billing clause"
+    ],
+    "groups": [
+      {"id": "contact", "any": ["sridhar"]},
+      {"id": "bills", "any": ["30"]}
+    ],
+    "defined_term": null,
+    "notes": "Two facts. Order is free. Do not require one exact tool string."
+  },
+  {
+    "id": "f07",
+    "question": "Can the Company terminate without notice if the Agency's services are deficient? If the parties then have a dispute, what must they try first, and when can they go to arbitration?",
+    "should_refuse": false,
+    "must_contain_all": ["arbitrat"],
+    "must_contain_any": ["without notice", "with or without", "seven", "7 day"],
+    "steps_needed": 2,
+    "alternate_paths": true,
+    "valid_paths": [
+      "search deficient-service termination, then search the dispute clause",
+      "search the dispute clause, then search deficient-service termination",
+      "one search whose text contains both"
+    ],
+    "groups": [
+      {"id": "deficient", "any": ["deficient", "without notice"]},
+      {"id": "dispute", "any": ["arbitrat", "amicable", "seven day", "7 day"]}
+    ],
+    "defined_term": null,
+    "notes": "Two clauses. Either order is a pass."
+  },
+  {
+    "id": "f08",
+    "question": "Who owns the creatives, advertisements, reports and other materials produced from the Agency's services?",
+    "should_refuse": false,
+    "must_contain_all": ["Company"],
+    "must_contain_any": ["own", "property", "assign"],
+    "steps_needed": 1,
+    "alternate_paths": true,
+    "valid_paths": [
+      "search_contracts",
+      "list_contracts then search_contracts"
+    ],
+    "groups": [
+      {"id": "ownership", "any": ["assign", "exclusive", "property"]}
+    ],
+    "defined_term": null,
+    "notes": "Single ownership clause."
+  },
+  {
+    "id": "f09",
+    "question": "What is Jordan Hale's base salary under this Service Provider Agreement, and does it require cyber insurance of $2 million?",
+    "should_refuse": true,
+    "must_contain_all": [],
+    "must_contain_any": [],
+    "steps_needed": 1,
+    "alternate_paths": true,
+    "valid_paths": [
+      "search_contracts, then refuse",
+      "list_contracts, search_contracts, then refuse"
+    ],
+    "groups": [],
+    "defined_term": null,
+    "notes": "Right outcome is a refusal. Refusing without any search is a wrong path."
+  },
+  {
+    "id": "f10",
+    "question": "In what language must a Notice under this agreement be given, and how can it be delivered?",
+    "should_refuse": false,
+    "must_contain_all": ["English"],
+    "must_contain_any": ["email", "courier", "hand", "facsimile"],
+    "steps_needed": 1,
+    "alternate_paths": true,
+    "valid_paths": [
+      "search the Notice definition",
+      "list_contracts then search the Notice definition"
+    ],
+    "groups": [
+      {"id": "notice_definition", "any": ["english"]}
+    ],
+    "defined_term": "Notice",
+    "notes": "This question is the definition. Outcome fails if the definition was not used."
+  }
+]

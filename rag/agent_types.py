@@ -55,3 +55,4 @@ class AgentRun:
     stop_reason: str
     grounded: bool
     memory_hits: list[str] = field(default_factory=list)
+    guard_stats: dict[str, Any] = field(default_factory=dict)

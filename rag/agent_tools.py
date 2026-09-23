@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from typing import Callable
 
+from rag.agent_guard import ToolGuard, sanitize_untrusted
 from rag.agent_memory import AgentMemory
 from rag.pipeline import RagPipeline
 from rag.store import RetrievedChunk
@@ -110,43 +111,85 @@ def format_chunks(chunks: list[RetrievedChunk]) -> str:
     return "\n\n".join(parts)
 
 
-def make_tool_runner(pipeline: RagPipeline, memory: AgentMemory) -> Callable[[str, dict], str]:
+def _with_attack_doc(observation: str, untrusted_document: str | None) -> str:
+    if not untrusted_document:
+        return observation
+    extra = (
+        "[extra] chunk_id=side-letter.txt::p1::c0 source=side-letter.txt page=1 score=0.9900\n"
+        + untrusted_document.strip()
+    )
+    if not observation or observation == "No matching chunks.":
+        return extra
+    return observation + "\n\n" + extra
+
+
+def make_tool_runner(
+    pipeline: RagPipeline,
+    memory: AgentMemory,
+    *,
+    guard: ToolGuard | None = None,
+    untrusted_document: str | None = None,
+    search_limit: int | None = None,
+) -> Callable[[str, dict], str]:
+    guard_state = guard or ToolGuard(enabled=False)
+
     def run(name: str, args: dict) -> str:
+        args = args or {}
+        if (
+            search_limit is not None
+            and name == "search_contracts"
+            and guard_state.search_count >= search_limit
+        ):
+            return (
+                "STEP_LIMIT: stop searching and answer from the observations you already have."
+            )
+        blocked = guard_state.before_call(name, args)
+        if blocked is not None:
+            return blocked
+
         if name == "list_contracts":
             names = pipeline.store.list_sources()
-            return json.dumps({"contracts": names, "count": len(names)})
-
-        if name == "search_contracts":
+            text = json.dumps({"contracts": names, "count": len(names)})
+        elif name == "search_contracts":
             query = str(args.get("query") or "").strip()
             source = str(args.get("source") or "").strip() or None
             if not query:
-                return "Error: query is required."
-            chunks = pipeline.retrieve(
-                query,
-                top_k=4,
-                source_filter=source,
-                mode="hybrid",
-                rewrite=True,
-            )
-            return format_chunks(chunks)
-
-        if name in {"read_chunk", "read_contracts", "get_chunk"}:
+                text = "Error: query is required."
+            else:
+                chunks = pipeline.retrieve(
+                    query,
+                    top_k=4,
+                    source_filter=source,
+                    mode="hybrid",
+                    rewrite=True,
+                )
+                text = _with_attack_doc(format_chunks(chunks), untrusted_document)
+        elif name in {"read_chunk", "read_contracts", "get_chunk"}:
             chunk_id = str(args.get("chunk_id") or "").strip()
             if not chunk_id:
-                return "Error: chunk_id is required."
-            found = pipeline.store.get_chunks([chunk_id])
-            return format_chunks(found)
-
-        if name == "recall_memory":
+                text = "Error: chunk_id is required."
+            else:
+                found = pipeline.store.get_chunks([chunk_id])
+                text = format_chunks(found)
+        elif name == "recall_memory":
             query = str(args.get("query") or "").strip()
             hits = memory.recall(query, k=3)
             if not hits:
-                return "No related past tasks."
-            return "\n\n".join(
-                f"past_q: {h.question}\nsummary: {h.summary}\nscore={h.score:.3f}"
-                for h in hits
-            )
+                text = "No related past tasks."
+            else:
+                text = "\n\n".join(
+                    f"past_q: {h.question}\nsummary: {h.summary}\nscore={h.score:.3f}"
+                    for h in hits
+                )
+        else:
+            text = f"Unknown tool: {name}"
 
-        return f"Unknown tool: {name}"
+        guard_state.commit(name, args)
+        if guard_state.enabled:
+            text, removed = sanitize_untrusted(text)
+            guard_state.injection_hits += removed
+            guard_state.trusted_observations.append(text)
+        guard_state.note_chunk_ids(text)
+        return text
 
     return run

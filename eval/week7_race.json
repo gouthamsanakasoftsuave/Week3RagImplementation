@@ -1,0 +1,257 @@
+{
+  "summary": {
+    "workflow": {
+      "pass": 2,
+      "n": 6,
+      "reliability_pct": 33.3,
+      "avg_ms": 1096,
+      "avg_llm_calls": 0.17,
+      "total_tokens": 1909,
+      "total_cost_usd": 0.000196
+    },
+    "agent": {
+      "pass": 2,
+      "n": 6,
+      "reliability_pct": 33.3,
+      "avg_ms": 2652,
+      "avg_llm_calls": 0.83,
+      "total_tokens": 7874,
+      "total_cost_usd": 0.000716
+    },
+    "ship": "Ship the fixed workflow. It matched or beat the agent on reliability and was faster. The steps are known in advance (list \u2192 search each part \u2192 answer once)."
+  },
+  "rows": [
+    {
+      "id": "w7_01",
+      "question": "Who are the two parties to the Service Provider Agreement, and how much written notice does a party need to give to terminate?",
+      "workflow": {
+        "answer": "**Parties to the Service Provider Agreement**  \n- **EIH LIMITED** (the \u201cIssuer\u201d / the \u201cCompany\u201d)  \n- **PRESSMAN ADVERTISING LIMITED** (the \u201cAgency\u201d)  \n\n**Written notice required to terminate**  \nEither party may terminate the Agreement by giving **30 days\u2019 prior notice in writing**.  \n\nSources: Service\u2011Provider\u2011Agreement.pdf, pages\u202f4 (parties) and\u202f11\u201112 (termination notice).",
+        "elapsed_ms": 6576,
+        "llm_calls": 1,
+        "prompt_tokens": 1676,
+        "completion_tokens": 233,
+        "total_tokens": 1909,
+        "cost_usd": 0.000196,
+        "stop_reason": "finished",
+        "step_count": 9,
+        "sources": [
+          "Service-Provider-Agreement.pdf"
+        ],
+        "pass": true,
+        "failures": []
+      },
+      "agent": {
+        "answer": "**Parties to the Service Provider Agreement**\n\n- **EIH LIMITED** (the \u201cIssuer\u201d / \u201cCompany\u201d)  \n- **PRESSMAN ADVERTISING LIMITED** (the \u201cAgency\u201d)  \n\n**Written notice required to terminate**\n\nEither party may terminate the agreement by giving **30 days\u2019 prior written notice**.  \n\nSources:  \n- Service-Provider-Agreement.pdf (page\u202f4 \u2013 parties\u2019 details)  \n- Service-Provider-Agreement.pdf (page\u202f11 \u2013 termination clause)",
+        "elapsed_ms": 15915,
+        "llm_calls": 5,
+        "prompt_tokens": 7316,
+        "completion_tokens": 558,
+        "total_tokens": 7874,
+        "cost_usd": 0.000716,
+        "stop_reason": "finished",
+        "step_count": 15,
+        "sources": [
+          "Service-Provider-Agreement.pdf"
+        ],
+        "pass": true,
+        "failures": []
+      }
+    },
+    {
+      "id": "w7_02",
+      "question": "What is the maximum aggregate liability of the Agency under the indemnity clause, and which country's law governs this agreement?",
+      "workflow": {
+        "answer": "I don't know based on the provided documents.",
+        "elapsed_ms": 0,
+        "llm_calls": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "cost_usd": 0.0,
+        "stop_reason": "error",
+        "step_count": 1,
+        "sources": [],
+        "pass": false,
+        "failures": [
+          "refused but the clauses are in the contract",
+          "missing required phrase: professional fees",
+          "missing any of: ['India', 'Indian']"
+        ]
+      },
+      "agent": {
+        "answer": "I don't know based on the provided documents.",
+        "elapsed_ms": 0,
+        "llm_calls": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "cost_usd": 0.0,
+        "stop_reason": "error",
+        "step_count": 1,
+        "sources": [],
+        "pass": false,
+        "failures": [
+          "refused but the clauses are in the contract",
+          "missing required phrase: professional fees",
+          "missing any of: ['India', 'Indian']"
+        ]
+      }
+    },
+    {
+      "id": "w7_03",
+      "question": "Who is the contact person and email for notices to the Company, and within how many days must advertising bills be settled after the month in which ads were released?",
+      "workflow": {
+        "answer": "I don't know based on the provided documents.",
+        "elapsed_ms": 0,
+        "llm_calls": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "cost_usd": 0.0,
+        "stop_reason": "error",
+        "step_count": 1,
+        "sources": [],
+        "pass": false,
+        "failures": [
+          "refused but the clauses are in the contract",
+          "missing required phrase: Sridhar",
+          "missing required phrase: 30",
+          "missing any of: ['sn.sridhar', 'oberoigroup']"
+        ]
+      },
+      "agent": {
+        "answer": "I don't know based on the provided documents.",
+        "elapsed_ms": 0,
+        "llm_calls": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "cost_usd": 0.0,
+        "stop_reason": "error",
+        "step_count": 1,
+        "sources": [],
+        "pass": false,
+        "failures": [
+          "refused but the clauses are in the contract",
+          "missing required phrase: Sridhar",
+          "missing required phrase: 30",
+          "missing any of: ['sn.sridhar', 'oberoigroup']"
+        ]
+      }
+    },
+    {
+      "id": "w7_04",
+      "question": "Can the Company terminate without notice if it thinks the Agency's services are deficient? If the parties then have a dispute, what must they try first and when can they go to arbitration?",
+      "workflow": {
+        "answer": "I don't know based on the provided documents.",
+        "elapsed_ms": 0,
+        "llm_calls": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "cost_usd": 0.0,
+        "stop_reason": "error",
+        "step_count": 1,
+        "sources": [],
+        "pass": false,
+        "failures": [
+          "refused but the clauses are in the contract",
+          "missing required phrase: arbitrat",
+          "missing any of: ['without notice', 'with or without', '7 day', 'seven day']"
+        ]
+      },
+      "agent": {
+        "answer": "I don't know based on the provided documents.",
+        "elapsed_ms": 0,
+        "llm_calls": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "cost_usd": 0.0,
+        "stop_reason": "error",
+        "step_count": 1,
+        "sources": [],
+        "pass": false,
+        "failures": [
+          "refused but the clauses are in the contract",
+          "missing required phrase: arbitrat",
+          "missing any of: ['without notice', 'with or without', '7 day', 'seven day']"
+        ]
+      }
+    },
+    {
+      "id": "w7_05",
+      "question": "Who owns the creatives, advertisements, reports and other materials produced from the Agency's services, and who must indemnify whom if there is a breach of a third party's intellectual property?",
+      "workflow": {
+        "answer": "I don't know based on the provided documents.",
+        "elapsed_ms": 0,
+        "llm_calls": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "cost_usd": 0.0,
+        "stop_reason": "error",
+        "step_count": 1,
+        "sources": [],
+        "pass": false,
+        "failures": [
+          "refused but the clauses are in the contract",
+          "missing required phrase: Company",
+          "missing required phrase: Agency",
+          "missing any of: ['own', 'property', 'assign', 'indemnif']"
+        ]
+      },
+      "agent": {
+        "answer": "I don't know based on the provided documents.",
+        "elapsed_ms": 0,
+        "llm_calls": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "cost_usd": 0.0,
+        "stop_reason": "error",
+        "step_count": 1,
+        "sources": [],
+        "pass": false,
+        "failures": [
+          "refused but the clauses are in the contract",
+          "missing required phrase: Company",
+          "missing required phrase: Agency",
+          "missing any of: ['own', 'property', 'assign', 'indemnif']"
+        ]
+      }
+    },
+    {
+      "id": "w7_06",
+      "question": "What is Jordan Hale's base salary under this Service Provider Agreement, and does it require cyber insurance of $2 million?",
+      "workflow": {
+        "answer": "I don't know based on the provided documents.",
+        "elapsed_ms": 0,
+        "llm_calls": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "cost_usd": 0.0,
+        "stop_reason": "error",
+        "step_count": 1,
+        "sources": [],
+        "pass": true,
+        "failures": []
+      },
+      "agent": {
+        "answer": "I don't know based on the provided documents.",
+        "elapsed_ms": 0,
+        "llm_calls": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "cost_usd": 0.0,
+        "stop_reason": "error",
+        "step_count": 1,
+        "sources": [],
+        "pass": true,
+        "failures": []
+      }
+    }
+  ]
+}
