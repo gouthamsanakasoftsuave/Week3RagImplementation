@@ -1,0 +1,48 @@
+{
+  "trace_id": "trc_7f3a91c2e0",
+  "ts": "2026-09-30T16:42:11+05:30",
+  "user": "legal-ops",
+  "channel": "drill",
+  "question": "How can either party end the Pressman service agreement?",
+  "answer": "Termination is covered by Clause 12.9. Either party may terminate the Service Provider Agreement by giving sixty (60) days' notice to the registered office. Sources: Service-Provider-Agreement.pdf",
+  "sources": [
+    "Service-Provider-Agreement.pdf"
+  ],
+  "model": "openai/gpt-oss-20b",
+  "cache_hit": false,
+  "quality_flag": "wrong_termination_clause",
+  "spans": [
+    {
+      "name": "cache_lookup",
+      "duration_ms": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "cost_usd": 0.0,
+      "cache_hit": false,
+      "note": "miss"
+    },
+    {
+      "name": "retrieve",
+      "duration_ms": 46,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "cost_usd": 0.0,
+      "cache_hit": false,
+      "note": "local hybrid search"
+    },
+    {
+      "name": "generate",
+      "duration_ms": 840,
+      "prompt_tokens": 900,
+      "completion_tokens": 70,
+      "cost_usd": 8.85e-05,
+      "cache_hit": false,
+      "model": "openai/gpt-oss-20b"
+    }
+  ],
+  "avoided_cost_usd": 0.0,
+  "duration_ms": 887,
+  "prompt_tokens": 900,
+  "completion_tokens": 70,
+  "cost_usd": 8.85e-05
+}

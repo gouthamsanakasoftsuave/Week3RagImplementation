@@ -12,6 +12,17 @@ from dotenv import load_dotenv
 from rag.pipeline import RagPipeline
 from rag.ocr import ocr_enabled, tesseract_available
 from rag.observability import flush_langfuse, tracing_enabled
+from rag.request_log import load_jsonl, log_path
+from rag.termination_guard import is_wrong_termination_citation
+from rag.week11 import (
+    COMPLAINT,
+    COMPLAINT_DAY,
+    COST_PATH,
+    DRILL_RESULT_PATH,
+    PLANTED_TRACE_ID,
+    ensure_drill,
+    shortlist_for_complaint,
+)
 from rag.agent_loop import run_agent
 from rag.agent_memory import AgentMemory
 from rag.agent_types import AgentRun
@@ -66,7 +77,12 @@ def render_run(run: AgentRun) -> None:
         f"{'grounded' if run.grounded else 'refused / incomplete'}"
     )
     stats = run.guard_stats or {}
-    if stats:
+    if stats.get("pattern") == "orchestrator-worker":
+        st.caption(
+            f"Squad · re-sent prompt tokens {stats.get('context_resend_prompt_tokens', 0)} "
+            f"(specialists {stats.get('specialist_prompt_tokens', 0)} + merge {stats.get('synthesis_prompt_tokens', 0)})"
+        )
+    elif stats:
         st.caption(
             f"Week 8 guards {'on' if stats.get('enabled') else 'off'} · "
             f"loops blocked {stats.get('blocked_loops', 0)} · "
@@ -196,9 +212,11 @@ def main() -> None:
 
     if pipeline.store.count == 0:
         st.info("No index yet. Click **Rebuild index** in the sidebar to ingest contracts.")
+        st.subheader("Week 11 · production log")
+        render_week11()
         return
 
-    tab_rag, tab_agent, tab_wf, tab_race, tab_w8, tab_w9 = st.tabs(
+    tab_rag, tab_agent, tab_wf, tab_race, tab_w8, tab_w9, tab_w10, tab_w11 = st.tabs(
         [
             "RAG (one shot)",
             "Agent loop",
@@ -206,6 +224,8 @@ def main() -> None:
             "Agent vs workflow race",
             "Week 8 trajectory",
             "Week 9 MCP",
+            "Week 10 squad",
+            "Week 11 production",
         ]
     )
 
@@ -232,6 +252,15 @@ def main() -> None:
                 chunks = answer.chunks_used
                 if tracing_enabled():
                     flush_langfuse()
+
+            st.caption(
+                f"Trace `{answer.trace_id}` · {answer.duration_ms} ms · "
+                f"${answer.cost_usd:.6f}"
+                + (" · cache hit" if answer.cache_hit else "")
+                + (f" · flag `{answer.quality_flag}`" if answer.quality_flag else "")
+            )
+            if answer.spans:
+                st.dataframe(answer.spans)
 
             st.subheader("Inspection view (Week 4)")
             c1, c2, c3 = st.columns(3)
@@ -495,6 +524,167 @@ def main() -> None:
             discovered = (run.guard_stats or {}).get("discovered") or []
             st.caption("Tools the server offered: " + ", ".join(discovered))
             render_run(run)
+
+    with tab_w10:
+        st.caption(
+            "Track F: manager plus clause-reader and coverage-checker, raced against the "
+            "single agent on the same six Week 7 questions. Writes `eval/week10_race.json` "
+            "and `WEEK_10_REPORT.md`."
+        )
+        st.warning(
+            "This calls Groq for the single agent and for the squad on every task. "
+            "It takes several minutes."
+        )
+        squad_q = st.text_area("Try the squad on one question", value=sample_q, key="w10_q", height=90)
+        if st.button("Run squad", key="w10_one"):
+            from rag.squad import run_squad
+
+            with st.spinner("Manager is handing work to the two specialists..."):
+                run = run_squad(squad_q.strip(), pipeline)
+            render_run(run)
+        raced = False
+        if st.button("Run squad vs single agent", type="primary", key="w10_race"):
+            from rag.squad_race import run_squad_race
+
+            with st.spinner("Racing the squad against the single agent..."):
+                result = run_squad_race(pipeline)
+            _render_week10(result)
+            raced = True
+
+        existing_w10 = Path("eval") / "week10_race.json"
+        if existing_w10.exists() and not raced:
+            saved = json.loads(existing_w10.read_text(encoding="utf-8"))
+            st.caption("Last saved race is `eval/week10_race.json`.")
+            _render_week10(saved)
+
+    with tab_w11:
+        render_week11()
+
+
+def render_spans(record: dict) -> None:
+    st.caption(
+        f"`{record.get('trace_id')}` · {record.get('duration_ms', 0)} ms · "
+        f"${float(record.get('cost_usd') or 0):.6f} · "
+        f"flag `{record.get('quality_flag') or 'none'}`"
+    )
+    st.dataframe(record.get("spans") or [])
+    st.markdown("**Question**")
+    st.write(record.get("question") or "")
+    st.markdown("**Answer**")
+    st.write(record.get("answer") or "")
+
+
+def render_week11() -> None:
+    st.caption(
+        "Track F: every Ask is a local trace (time and cost per step). "
+        "The support log below is the drill — find the answer that cited the wrong termination clause."
+    )
+    st.info(COMPLAINT)
+    records = ensure_drill()
+    live = load_jsonl(log_path())
+    st.caption(
+        f"Drill log: {len(records)} requests in `eval/week11_support_drill.jsonl`. "
+        f"Live Ask log: {len(live)} in `{log_path()}`."
+    )
+
+    if COST_PATH.exists():
+        cost = json.loads(COST_PATH.read_text(encoding="utf-8"))
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Cost / request before", f"${cost['baseline_cost_per_request_usd']:.6f}")
+        c2.metric("Cost / request after cache", f"${cost['improved_cost_per_request_usd']:.6f}")
+        c3.metric("Cut", f"{cost['reduction_pct']}%")
+        st.caption(cost.get("note") or "")
+
+    day = st.text_input("Day in the log", value=COMPLAINT_DAY, key="w11_day")
+    if st.button("Search the complaint", type="primary", key="w11_search"):
+        short = shortlist_for_complaint(records, day=day.strip() or COMPLAINT_DAY)
+        st.session_state["w11_short"] = short
+
+    short = st.session_state.get("w11_short")
+    if short is not None:
+        rows = []
+        for row in short:
+            rows.append(
+                {
+                    "trace_id": row["trace_id"],
+                    "time": row["ts"][11:19],
+                    "user": row.get("user") or "",
+                    "wrong_clause": is_wrong_termination_citation(row.get("answer") or ""),
+                    "cost_usd": row.get("cost_usd"),
+                    "question": row["question"],
+                }
+            )
+        st.dataframe(rows)
+        bad = [row for row in short if is_wrong_termination_citation(row.get("answer") or "")]
+        if len(bad) == 1 and bad[0]["trace_id"] == PLANTED_TRACE_ID:
+            st.success(
+                f"Found `{PLANTED_TRACE_ID}`. It cites Clause 12.9 and a 60-day notice. "
+                "The termination right is Clause 7.1: 30 days' prior written notice."
+            )
+            render_spans(bad[0])
+        elif not bad:
+            st.warning("Nothing in this shortlist cites the wrong termination clause.")
+
+    if DRILL_RESULT_PATH.exists():
+        with st.expander("Saved drill result"):
+            st.json(json.loads(DRILL_RESULT_PATH.read_text(encoding="utf-8")))
+
+    st.markdown(
+        "Failure test: `python eval/week11_failure_test.py`. "
+        "Cost measurement: `python eval/week11_cost.py`."
+    )
+    with st.expander("10× plan"):
+        st.markdown(
+            """
+Groq's token cap breaks first (it already stopped the Week 10 squad on the last question).
+Retrieval is local, so it is not the bottleneck.
+
+- Keep the exact answer cache in front of Groq.
+- On a rate limit, return a cached answer or a refusal that still carries a trace id.
+- Move this JSONL log to SQLite before more than one process appends to it.
+- Do not fine-tune for one clause mix-up. The regression test is the guard.
+            """
+        )
+
+
+def _render_week10(result: dict) -> None:
+    summary = result.get("summary") or {}
+    single = summary.get("single") or {}
+    team = summary.get("team") or {}
+    verdict = result.get("verdict") or {}
+    if not single or not team:
+        return
+    left, right = st.columns(2)
+    with left:
+        st.markdown("**Single agent**")
+        st.metric("Quality", f"{single['reliability_pct']}%")
+        st.metric("Avg speed (ms)", single["avg_ms"])
+        st.metric("Tokens", single["total_tokens"])
+        st.metric("Cost USD", f"{single['total_cost_usd']:.5f}")
+    with right:
+        st.markdown("**Contract squad**")
+        st.metric("Quality", f"{team['reliability_pct']}%")
+        st.metric("Avg speed (ms)", team["avg_ms"])
+        st.metric("Tokens", team["total_tokens"])
+        st.metric("Cost USD", f"{team['total_cost_usd']:.5f}")
+    if verdict:
+        st.success(f"Keep the {verdict.get('keep')}. {verdict.get('reason', '')}")
+        st.write(verdict.get("when_multi_agent_is_worth_it", ""))
+    rows = []
+    for row in result.get("rows") or []:
+        rows.append(
+            {
+                "id": row["id"],
+                "single_pass": row["single"]["pass"],
+                "squad_pass": row["team"]["pass"],
+                "single_ms": row["single"]["elapsed_ms"],
+                "squad_ms": row["team"]["elapsed_ms"],
+                "single_tokens": row["single"]["total_tokens"],
+                "squad_tokens": row["team"]["total_tokens"],
+            }
+        )
+    if rows:
+        st.dataframe(rows)
 
 
 def _render_week8(result: dict) -> None:

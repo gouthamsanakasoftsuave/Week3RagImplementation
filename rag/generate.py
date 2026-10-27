@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from groq import Groq
 
@@ -35,6 +35,13 @@ class RagAnswer:
     prompt_tokens: int = 0
     completion_tokens: int = 0
     llm_calls: int = 0
+    trace_id: str = ""
+    cache_hit: bool = False
+    cost_usd: float = 0.0
+    avoided_cost_usd: float = 0.0
+    duration_ms: int = 0
+    quality_flag: str = ""
+    spans: list = field(default_factory=list)
 
 
 def build_context(chunks: list[RetrievedChunk]) -> str:

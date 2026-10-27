@@ -1,0 +1,53 @@
+{
+  "complaint": "Someone in legal asked yesterday how a party can end the Pressman agreement. The answer cited the wrong termination clause. I don't have a ticket number.",
+  "day": "2026-09-30",
+  "log_count": 1205,
+  "shortlist_count": 5,
+  "shortlist": [
+    {
+      "trace_id": "trc_115c6f56e8e1",
+      "ts": "2026-09-30T09:14:02+05:30",
+      "user": "contracts-desk",
+      "question": "How much written notice does a party need to give to terminate this agreement?",
+      "wrong_termination_clause": false,
+      "quality_flag": ""
+    },
+    {
+      "trace_id": "trc_e3dde5bd0bc1",
+      "ts": "2026-09-30T11:05:44+05:30",
+      "user": "outside-counsel",
+      "question": "Can the Company end the agreement without notice if services are deficient?",
+      "wrong_termination_clause": false,
+      "quality_flag": ""
+    },
+    {
+      "trace_id": "trc_7d371336f584",
+      "ts": "2026-09-30T13:22:18+05:30",
+      "user": "legal-ops",
+      "question": "Where do we send a notice if we terminate the Pressman agreement?",
+      "wrong_termination_clause": false,
+      "quality_flag": ""
+    },
+    {
+      "trace_id": "trc_50fb95ad501a",
+      "ts": "2026-09-30T15:01:09+05:30",
+      "user": "finance",
+      "question": "What happens to the indemnity after we end the Pressman contract?",
+      "wrong_termination_clause": false,
+      "quality_flag": ""
+    },
+    {
+      "trace_id": "trc_7f3a91c2e0",
+      "ts": "2026-09-30T16:42:11+05:30",
+      "user": "legal-ops",
+      "question": "How can either party end the Pressman service agreement?",
+      "wrong_termination_clause": true,
+      "quality_flag": "wrong_termination_clause"
+    }
+  ],
+  "found_trace_id": "trc_7f3a91c2e0",
+  "found_question": "How can either party end the Pressman service agreement?",
+  "found_answer": "Termination is covered by Clause 12.9. Either party may terminate the Service Provider Agreement by giving sixty (60) days' notice to the registered office. Sources: Service-Provider-Agreement.pdf",
+  "why_it_is_wrong": "Clause 7.1 is the termination right: 30 days' prior written notice. Clause 12.9 only says where a notice is sent. The logged answer treats 12.9 as the termination clause and invents a 60-day period.",
+  "decoy_note": "The 13:22 log also mentions Clause 12.9 and termination. It is not the failure: it uses 12.9 as the delivery address and still cites Clause 7.1 for the 30-day period."
+}

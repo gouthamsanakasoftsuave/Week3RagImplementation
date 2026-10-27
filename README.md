@@ -102,3 +102,25 @@ python eval/week6_eval.py
 ```
 
 Results: `eval/week6_results.json`.
+
+## Contract squad vs single agent (Week 10 · Track F)
+
+Manager plus two specialists (`clause-reader`, `coverage-checker`) raced against the existing single agent on the same six questions in `eval/week7_tasks.json`.
+
+```powershell
+python eval/week10_race.py
+```
+
+Writes `eval/week10_race.json` and `WEEK_10_REPORT.md` (quality, speed, tokens, cost, and which one to keep). The app tab is **Week 10 squad**.
+
+## Production log, cost, and the failure test (Week 11 · Track F)
+
+Every Ask writes a local trace (`logs/requests.jsonl`) with time and cost on `cache_lookup`, `retrieve`, and `generate`. Repeating the same question is an exact cache hit and does not call Groq again.
+
+The support drill is a 1,200-line log with one planted bad answer: it cites Clause 12.9 and a 60-day notice as the way to terminate. The termination right is Clause 7.1 (30 days). Write-up: `WEEK_11_REPORT.md`. The app tab is **Week 11 production**.
+
+```powershell
+python eval/week11_drill.py
+python eval/week11_failure_test.py
+python eval/week11_cost.py
+```

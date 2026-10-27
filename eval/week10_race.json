@@ -1,0 +1,547 @@
+{
+  "track": "F",
+  "topic": "Legal contracts",
+  "tasks": "eval/week7_tasks.json",
+  "same_tests": true,
+  "agent_cards": [
+    {
+      "name": "contract-manager",
+      "description": "Splits one contract question into two independent sub-questions and writes the final answer from specialist artifacts only. Does not search.",
+      "url": "a2a://local/contract-manager",
+      "version": "0.1.0",
+      "protocol": "A2A-style in-process handoff",
+      "defaultInputModes": [
+        "text/plain"
+      ],
+      "defaultOutputModes": [
+        "text/plain"
+      ],
+      "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": true
+      },
+      "skills": [
+        {
+          "id": "split-question",
+          "name": "Split a contract question",
+          "description": "Turn one question into two sub-questions that can be researched separately."
+        },
+        {
+          "id": "merge-artifacts",
+          "name": "Merge specialist artifacts",
+          "description": "Write the user-facing answer from clause-reader and coverage-checker reports."
+        }
+      ]
+    },
+    {
+      "name": "clause-reader",
+      "description": "Quotes the clause that answers one assigned sub-question. Copies names and numbers. Does not decide absence for the whole matter.",
+      "url": "a2a://local/clause-reader",
+      "version": "0.1.0",
+      "protocol": "A2A-style in-process handoff",
+      "defaultInputModes": [
+        "text/plain"
+      ],
+      "defaultOutputModes": [
+        "text/plain"
+      ],
+      "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": true
+      },
+      "skills": [
+        {
+          "id": "quote-clause",
+          "name": "Quote a clause",
+          "description": "Search contracts and return STATUS, FACT, QUOTE, and SOURCE for one fact."
+        }
+      ]
+    },
+    {
+      "name": "coverage-checker",
+      "description": "Decides whether the indexed contracts contain one assigned fact. Absence is a valid result. Different instructions from the clause reader.",
+      "url": "a2a://local/coverage-checker",
+      "version": "0.1.0",
+      "protocol": "A2A-style in-process handoff",
+      "defaultInputModes": [
+        "text/plain"
+      ],
+      "defaultOutputModes": [
+        "text/plain"
+      ],
+      "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": true
+      },
+      "skills": [
+        {
+          "id": "check-coverage",
+          "name": "Check whether a fact is in the contracts",
+          "description": "Search, then return SUPPORTED or ABSENT with the evidence line."
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "single": {
+      "pass": 5,
+      "n": 6,
+      "reliability_pct": 83.3,
+      "avg_ms": 61516,
+      "avg_llm_calls": 5.5,
+      "total_tokens": 55798,
+      "total_prompt_tokens": 51720,
+      "total_cost_usd": 0.005103
+    },
+    "team": {
+      "pass": 5,
+      "n": 6,
+      "reliability_pct": 83.3,
+      "avg_ms": 85905,
+      "avg_llm_calls": 9.5,
+      "total_tokens": 56342,
+      "total_prompt_tokens": 45520,
+      "total_cost_usd": 0.006661
+    },
+    "context_resend_prompt_tokens": 44142
+  },
+  "verdict": {
+    "quality": "tie",
+    "speed": "single",
+    "tokens": "single",
+    "cost": "single",
+    "keep": "single",
+    "reason": "The single agent matched or beat the squad on the same tests. The extra hand-offs did not buy a better answer. Keep the single agent.",
+    "cost_ratio_team_over_single": 1.31,
+    "when_multi_agent_is_worth_it": "A squad is worth the re-send when the parts of the job are independent and can run at the same time, or when the specialists need instructions that would fight each other inside one prompt (quote a clause versus decide the fact is absent). It is not worth it when one agent can search and answer on its own. Every hand-off starts a new prompt, so the question and the retrieved clauses are paid for again."
+  },
+  "rows": [
+    {
+      "id": "w7_01",
+      "question": "Who are the two parties to the Service Provider Agreement, and how much written notice does a party need to give to terminate?",
+      "single": {
+        "answer": "**Parties to the Service Provider Agreement**\n\n1. **EIH LIMITED** \u2013 the issuer/company (referred to as the \u201cIssuer\u201d or \u201cCompany\u201d).  \n2. **PRESSMAN ADVERTISING LIMITED** \u2013 the agency providing services (referred to as the \u201cAgency\u201d).\n\n**Written notice required to terminate**\n\nEither party may terminate the agreement by giving **30 days\u2019 prior notice in writing**.  \n\n**Sources**\n\n- Service-Provider-Agreement.pdf::p4::c0 \u2013 parties\u2019 names and designations.  \n- Service-Provider-Agreement.pdf::p11::c6 \u2013 termination notice period.",
+        "elapsed_ms": 9175,
+        "llm_calls": 6,
+        "prompt_tokens": 8324,
+        "completion_tokens": 481,
+        "total_tokens": 8805,
+        "cost_usd": 0.000769,
+        "stop_reason": "finished",
+        "step_count": 17,
+        "sources": [
+          "Service-Provider-Agreement.pdf"
+        ],
+        "pass": true,
+        "failures": []
+      },
+      "team": {
+        "answer": "The two parties to the Service Provider Agreement are **EIH LIMITED** and **PRESSMAN ADVERTISING LIMITED**. Either party may terminate the agreement by giving **30 days\u2019 prior notice in writing**.  \n\nSources: Service-Provider-Agreement.pdf",
+        "elapsed_ms": 80547,
+        "llm_calls": 10,
+        "prompt_tokens": 7446,
+        "completion_tokens": 2738,
+        "total_tokens": 10184,
+        "cost_usd": 0.00138,
+        "stop_reason": "finished",
+        "step_count": 24,
+        "sources": [
+          "Service-Provider-Agreement.pdf"
+        ],
+        "pass": true,
+        "failures": [],
+        "context_resend_prompt_tokens": 7221,
+        "tasks": [
+          {
+            "id": "fc022d4e",
+            "specialist": "clause-reader",
+            "state": "completed",
+            "history": [
+              "submitted",
+              "working",
+              "completed"
+            ],
+            "subquestion": "Who are the two parties to the Service Provider Agreement?",
+            "elapsed_ms": 66548,
+            "prompt_tokens": 4669,
+            "completion_tokens": 2044,
+            "artifact": "STATUS: FOUND  \nFACT: The two parties are EIH LIMITED and PRESSMAN ADVERTISING LIMITED.  \nQUOTE: \"This SERVICE PROVIDER AGREEMENT (THE \u201cAGREEMENT\u201d) is entered into at New Delhi on this 18th day of September 2020, by and between: EIH LIMITED, a company incorporated under the Companies Act, 1956, having its registered office at 4 Mangoe Lane, Kolkata - 700 001, and its corporate office at 7 Sham Nath Marg, Delhi - 110 054 (hereinafter referred to as the \u201cIssuer\u201d / the \u201cCompany\u201d, which expression shall, unless it be repugnant to the context or meaning thereof, be deemed to mean and include its successors and permitted assigns) of the FIRST PART; AND PRESSMAN ADVERTISING LIMITED, a company registered under the Companies Act, 1956, having its office at Pressman House, 10A Lee Road, Kolkata - 700 020 (hereinafter referred to as the \u201cAgency\u201d, which expression shall, unless it be repugnant to the context or meaning thereof, be deemed to mean and include its successors and permitted assigns) of the SECOND PART.\"  \nSOURCE: Service-Provider-Agreement.pdf"
+          },
+          {
+            "id": "23bcb5bc",
+            "specialist": "coverage-checker",
+            "state": "completed",
+            "history": [
+              "submitted",
+              "working",
+              "completed"
+            ],
+            "subquestion": "How much written notice does a party need to give to terminate the Service Provider Agreement?",
+            "elapsed_ms": 28306,
+            "prompt_tokens": 1952,
+            "completion_tokens": 208,
+            "artifact": "STATUS: SUPPORTED  \nFACT: Either Party can terminate the agreement by giving 30 days \u2019prior notice in writing.  \nQUOTE: \"Either Party can terminate the agreement by giving 30 days \u2019prior notice in writing.\"  \nSOURCE: Service-Provider-Agreement.pdf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "w7_02",
+      "question": "What is the maximum aggregate liability of the Agency under the indemnity clause, and which country's law governs this agreement?",
+      "single": {
+        "answer": "**Maximum aggregate liability of the Agency under the indemnity clause**  \nThe indemnity clause limits the Agency\u2019s aggregate liability (together with its sister concerns, affiliates, directors, employees, associates or contractors) to **the aggregate amount of professional fees paid and payable by the Company to the Agency under this Agreement**.  \n\n**Governing law**  \nThe agreement is governed by and construed in accordance with **Indian law**.  \n\n**Sources**  \n- Service\u2011Provider\u2011Agreement.pdf, clause 9.3 (maximum aggregate liability)  \n- Service\u2011Provider\u2011Agreement.pdf, clause 10.1 (governing law)",
+        "elapsed_ms": 37038,
+        "llm_calls": 5,
+        "prompt_tokens": 5272,
+        "completion_tokens": 592,
+        "total_tokens": 5864,
+        "cost_usd": 0.000573,
+        "stop_reason": "finished",
+        "step_count": 14,
+        "sources": [
+          "Service-Provider-Agreement.pdf"
+        ],
+        "pass": true,
+        "failures": []
+      },
+      "team": {
+        "answer": "The maximum aggregate liability of the Agency under the indemnity clause is limited to the aggregate amount of professional fees paid and payable by the Company to the Agency under this Agreement. The agreement is governed by Indian law.  \n\nSources: Service-Provider-Agreement.pdf",
+        "elapsed_ms": 63759,
+        "llm_calls": 8,
+        "prompt_tokens": 6716,
+        "completion_tokens": 1351,
+        "total_tokens": 8067,
+        "cost_usd": 0.000909,
+        "stop_reason": "finished",
+        "step_count": 20,
+        "sources": [
+          "Service-Provider-Agreement.pdf"
+        ],
+        "pass": true,
+        "failures": [],
+        "context_resend_prompt_tokens": 6493,
+        "tasks": [
+          {
+            "id": "5767c249",
+            "specialist": "clause-reader",
+            "state": "completed",
+            "history": [
+              "submitted",
+              "working",
+              "completed"
+            ],
+            "subquestion": "What is the maximum aggregate liability of the Agency under the indemnity clause?",
+            "elapsed_ms": 28675,
+            "prompt_tokens": 1438,
+            "completion_tokens": 252,
+            "artifact": "STATUS: FOUND  \nFACT: The maximum aggregate liability of the Agency under the indemnity clause is limited to the aggregate amount of professional fees paid and payable by the Company to the Agency under this Agreement.  \nQUOTE: \u201cThe maximum aggregate liability of the Agency, together with its sister concerns, affiliates, directors, employees, associates or contractor under Clause 9.1 shall in no event exceed the aggregate amount of professional fees paid and payable by the Company to the Agency under this Agreement.\u201d  \nSOURCE: Service-Provider-Agreement.pdf"
+          },
+          {
+            "id": "416ef39b",
+            "specialist": "coverage-checker",
+            "state": "completed",
+            "history": [
+              "submitted",
+              "working",
+              "completed"
+            ],
+            "subquestion": "Which country's law governs this agreement?",
+            "elapsed_ms": 54779,
+            "prompt_tokens": 4609,
+            "completion_tokens": 568,
+            "artifact": "STATUS: SUPPORTED  \nFACT: The provisions of this Agreement shall be governed by and construed in accordance with Indian law.  \nQUOTE: \"10.1. The provisions of this Agreement shall be governed by and construed in accordance with Indian law.\"  \nSOURCE: Service-Provider-Agreement.pdf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "w7_03",
+      "question": "Who is the contact person and email for notices to the Company, and within how many days must advertising bills be settled after the month in which ads were released?",
+      "single": {
+        "answer": "I don't know based on the provided documents.",
+        "elapsed_ms": 135596,
+        "llm_calls": 8,
+        "prompt_tokens": 16353,
+        "completion_tokens": 727,
+        "total_tokens": 17080,
+        "cost_usd": 0.001445,
+        "stop_reason": "max_time",
+        "step_count": 23,
+        "sources": [
+          "Service-Provider-Agreement.pdf"
+        ],
+        "pass": false,
+        "failures": [
+          "refused but the clauses are in the contract",
+          "missing required phrase: Sridhar",
+          "missing required phrase: 30",
+          "missing any of: ['sn.sridhar', 'oberoigroup']"
+        ]
+      },
+      "team": {
+        "answer": "I don't know based on the provided documents.",
+        "elapsed_ms": 82611,
+        "llm_calls": 9,
+        "prompt_tokens": 6851,
+        "completion_tokens": 1839,
+        "total_tokens": 8690,
+        "cost_usd": 0.001066,
+        "stop_reason": "finished",
+        "step_count": 22,
+        "sources": [
+          "Service-Provider-Agreement.pdf"
+        ],
+        "pass": false,
+        "failures": [
+          "refused but the clauses are in the contract",
+          "missing required phrase: Sridhar",
+          "missing required phrase: 30",
+          "missing any of: ['sn.sridhar', 'oberoigroup']"
+        ],
+        "context_resend_prompt_tokens": 6619,
+        "tasks": [
+          {
+            "id": "857c2cb4",
+            "specialist": "clause-reader",
+            "state": "completed",
+            "history": [
+              "submitted",
+              "working",
+              "completed"
+            ],
+            "subquestion": "Who is the contact person and email for notices to the Company?",
+            "elapsed_ms": 70826,
+            "prompt_tokens": 4749,
+            "completion_tokens": 1234,
+            "artifact": "STATUS: NOT_FOUND  \nFACT: none  \nSOURCE: none"
+          },
+          {
+            "id": "822eb9d2",
+            "specialist": "coverage-checker",
+            "state": "completed",
+            "history": [
+              "submitted",
+              "working",
+              "completed"
+            ],
+            "subquestion": "Within how many days must advertising bills be settled after the month in which ads were released?",
+            "elapsed_ms": 24630,
+            "prompt_tokens": 1481,
+            "completion_tokens": 218,
+            "artifact": "STATUS: SUPPORTED  \nFACT: The advertising bills will be settled within 30 days of the last day of the month during which the Advertisements were released.  \nQUOTE: \"The advertising bills will be settled within 30 days of the last day of the month during which the Advertisements were released.\"  \nSOURCE: Service-Provider-Agreement.pdf (page 11)"
+          }
+        ]
+      }
+    },
+    {
+      "id": "w7_04",
+      "question": "Can the Company terminate without notice if it thinks the Agency's services are deficient? If the parties then have a dispute, what must they try first and when can they go to arbitration?",
+      "single": {
+        "answer": "**Termination without notice**\n\nYes.  The Agreement allows the Company to terminate the Agreement \u201cwith or without notice\u201d whenever it \u201cforms an opinion that the Agency is providing deficient services\u201d\u30101\u2020chunk_id=Service-Provider-Agreement.pdf::p12::c0\u3011.  \nBefore doing so, the Company must give the Agency a \u201csufficient opportunity to be heard\u201d and the Company\u2019s decision is final and binding, with no compensation payable to the Agency\u30101\u2020chunk_id=Service-Provider-Agreement.pdf::p12::c0\u3011\u30101\u2020chunk_id=Service-Provider-Agreement.pdf::p12::c1\u3011.\n\n**Dispute resolution**\n\n1. Either party may issue a written notice of a dispute.  \n2. The parties must try to resolve the dispute by \u201camicable arrangement and compromise\u201d within **seven days** of that notice\u30101\u2020chunk_id=Service-Provider-Agreement.pdf::p14::c1\u3011.  \n3. If they fail to resolve it within that period, the dispute may be resolved by arbitration under Clause\u202f10\u30101\u2020chunk_id=Service-Provider-Agreement.pdf::p14::c1\u3011.\n\n**Sources**\n\n- Service\u2011Provider\u2011Agreement.pdf \u2013 clauses on termination without notice and dispute resolution (chunks p12::c0\u2011c1, p14::c1).",
+        "elapsed_ms": 29627,
+        "llm_calls": 4,
+        "prompt_tokens": 3834,
+        "completion_tokens": 713,
+        "total_tokens": 4547,
+        "cost_usd": 0.000501,
+        "stop_reason": "finished",
+        "step_count": 11,
+        "sources": [
+          "Service-Provider-Agreement.pdf"
+        ],
+        "pass": true,
+        "failures": []
+      },
+      "team": {
+        "answer": "The Company may terminate the Agreement with or without notice at any time if it believes the Agency is providing deficient services, as stated: \u201cto terminate this Agreement with or without notice, at any time, in the event the Company forms an opinion that the Agency is providing deficient services.\u201d  \nThe parties must first issue a notice and attempt to resolve the dispute amicably within seven days; only if they fail to do so may they proceed to arbitration, as stated: \u201cAny Party may issue a notice, (\u201cNotice\u201d), to the other Parties in respect of any such dispute, difference or claim. Only if the Parties fail to resolve the dispute within seven days by amicable arrangement and compromise, such dispute may be resolved by the arbitration proceedings referred to in this Clause 10.\u201d  \n\nSources: Service-Provider-Agreement.pdf",
+        "elapsed_ms": 71456,
+        "llm_calls": 10,
+        "prompt_tokens": 7501,
+        "completion_tokens": 1930,
+        "total_tokens": 9431,
+        "cost_usd": 0.001142,
+        "stop_reason": "finished",
+        "step_count": 24,
+        "sources": [
+          "Service-Provider-Agreement.pdf"
+        ],
+        "pass": true,
+        "failures": [],
+        "context_resend_prompt_tokens": 7264,
+        "tasks": [
+          {
+            "id": "095ed628",
+            "specialist": "clause-reader",
+            "state": "completed",
+            "history": [
+              "submitted",
+              "working",
+              "completed"
+            ],
+            "subquestion": "Can the Company terminate without notice if it thinks the Agency's services are deficient?",
+            "elapsed_ms": 59552,
+            "prompt_tokens": 3551,
+            "completion_tokens": 315,
+            "artifact": "STATUS: FOUND  \nFACT: The Company may terminate the Agreement with or without notice at any time if it believes the Agency is providing deficient services.  \nQUOTE: \u201cto terminate this Agreement with or without notice, at any time, in the event the Company forms an opinion that the Agency is providing deficient services.\u201d  \nSOURCE: Service-Provider-Agreement.pdf"
+          },
+          {
+            "id": "d7bf0c7e",
+            "specialist": "coverage-checker",
+            "state": "completed",
+            "history": [
+              "submitted",
+              "working",
+              "completed"
+            ],
+            "subquestion": "If the parties then have a dispute, what must they try first and when can they go to arbitration?",
+            "elapsed_ms": 37140,
+            "prompt_tokens": 3212,
+            "completion_tokens": 491,
+            "artifact": "STATUS: SUPPORTED  \nFACT: The parties must first issue a notice and attempt to resolve the dispute amicably within seven days; only if they fail to do so may they proceed to arbitration.  \nQUOTE: \u201cAny Party may issue a notice, (\u201cNotice\u201d), to the other Parties in respect of any such dispute, difference or claim. Only if the Parties fail to resolve the dispute within seven days by amicable arrangement and compromise, such dispute may be resolved by the arbitration proceedings referred to in this Clause 10.\u201d  \nSOURCE: Service-Provider-Agreement.pdf (page\u202f14)"
+          }
+        ]
+      }
+    },
+    {
+      "id": "w7_05",
+      "question": "Who owns the creatives, advertisements, reports and other materials produced from the Agency's services, and who must indemnify whom if there is a breach of a third party's intellectual property?",
+      "single": {
+        "answer": "**Ownership of materials**  \nAll creatives, advertisements, reports and any other tangible or intangible material produced by the Agency in connection with its services are the sole and exclusive property of the Company. The Agency irrevocably assigns, transfers and grants all rights, title and interest in such materials to the Company and may not use them except as expressly permitted by the Company.  \n\n**Indemnity for third\u2011party IP breach**  \nIf the Agency breaches any third\u2011party intellectual\u2011property right, the Agency must, at its own cost and expense, indemnify, defend and hold the Company (and its affiliates, directors, management and employees) harmless from all losses, liabilities, claims, damages, actions, costs and expenses\u2014including attorney\u2019s fees and court costs\u2014arising from that breach.  \n\n**Sources**  \n- Service\u2011Provider\u2011Agreement.pdf (ownership clause)  \n- Service\u2011Provider\u2011Agreement.pdf (indemnity clause)",
+        "elapsed_ms": 20576,
+        "llm_calls": 2,
+        "prompt_tokens": 1619,
+        "completion_tokens": 659,
+        "total_tokens": 2278,
+        "cost_usd": 0.000319,
+        "stop_reason": "finished",
+        "step_count": 5,
+        "sources": [
+          "Service-Provider-Agreement.pdf"
+        ],
+        "pass": true,
+        "failures": []
+      },
+      "team": {
+        "answer": "All creatives, advertisements, reports and other materials produced by the Agency shall be the sole and exclusive property of the Company.  \nThe Agency shall, at its own cost and expense, indemnify, defend and hold the Company and its Affiliates, directors, management, employees free and harmless from and against any and all losses, liabilities, claims, damages, actions, costs and expenses, including attorney\u2019s fees and court costs arising out of such breach.  \n\nSources: Service-Provider-Agreement.pdf",
+        "elapsed_ms": 71073,
+        "llm_calls": 9,
+        "prompt_tokens": 7220,
+        "completion_tokens": 2043,
+        "total_tokens": 9263,
+        "cost_usd": 0.001154,
+        "stop_reason": "finished",
+        "step_count": 22,
+        "sources": [
+          "Service-Provider-Agreement.pdf"
+        ],
+        "pass": true,
+        "failures": [],
+        "context_resend_prompt_tokens": 6983,
+        "tasks": [
+          {
+            "id": "76e0eb9f",
+            "specialist": "clause-reader",
+            "state": "completed",
+            "history": [
+              "submitted",
+              "working",
+              "completed"
+            ],
+            "subquestion": "Who owns the creatives, advertisements, reports and other materials produced from the Agency's services?",
+            "elapsed_ms": 65870,
+            "prompt_tokens": 4918,
+            "completion_tokens": 913,
+            "artifact": "STATUS: FOUND  \nFACT: All creatives, advertisements, reports and other materials produced by the Agency shall be the sole and exclusive property of the Company.  \nQUOTE: \u201csource codes, object codes and executables), flow charts, diagrams and other tangible and intangible material of any nature whatsoever produced by or as a result of any of the services rendered hereunder shall be the sole and exclusive property of the Company. In furtherance thereof, the Agency hereby irrevocably grants, assigns, transfers to the Company all rights, title and interest of any kind, in and to any such product produced hereunder.\u201d  \nSOURCE: Service-Provider-Agreement.pdf"
+          },
+          {
+            "id": "1786bd3b",
+            "specialist": "coverage-checker",
+            "state": "completed",
+            "history": [
+              "submitted",
+              "working",
+              "completed"
+            ],
+            "subquestion": "Who must indemnify whom if there is a breach of a third party's intellectual property?",
+            "elapsed_ms": 25176,
+            "prompt_tokens": 1472,
+            "completion_tokens": 534,
+            "artifact": "STATUS: SUPPORTED  \nFACT: The Agency shall, at its own cost and expense, indemnify, defend and hold the Company and its Affiliates, directors, management, employees free and harmless from and against any and all losses, liabilities, claims, damages, actions, costs and expenses, including attorney\u2019s fees and court costs arising out of such breach.  \nQUOTE: \"the Agency shall, at its own cost and expense, indemnify, defend and hold the Company and its Affiliates, directors, management, employees free and harmless from and against any and all losses, liabilities, claims, damages, actions, costs and expenses, including attorney\u2019s fees and court costs arising out of such breach.\"  \nSOURCE: Service-Provider-Agreement.pdf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "w7_06",
+      "question": "What is Jordan Hale's base salary under this Service Provider Agreement, and does it require cyber insurance of $2 million?",
+      "single": {
+        "answer": "I don't know based on the provided documents.",
+        "elapsed_ms": 137089,
+        "llm_calls": 8,
+        "prompt_tokens": 16318,
+        "completion_tokens": 906,
+        "total_tokens": 17224,
+        "cost_usd": 0.001496,
+        "stop_reason": "max_time",
+        "step_count": 23,
+        "sources": [
+          "Service-Provider-Agreement.pdf"
+        ],
+        "pass": true,
+        "failures": []
+      },
+      "team": {
+        "answer": "I don't know based on the provided documents.",
+        "elapsed_ms": 145986,
+        "llm_calls": 11,
+        "prompt_tokens": 9786,
+        "completion_tokens": 921,
+        "total_tokens": 10707,
+        "cost_usd": 0.00101,
+        "stop_reason": "finished",
+        "step_count": 28,
+        "sources": [
+          "Service-Provider-Agreement.pdf"
+        ],
+        "pass": true,
+        "failures": [],
+        "context_resend_prompt_tokens": 9562,
+        "tasks": [
+          {
+            "id": "22366bcd",
+            "specialist": "clause-reader",
+            "state": "failed",
+            "history": [
+              "submitted",
+              "working",
+              "failed"
+            ],
+            "subquestion": "What is Jordan Hale's base salary under this Service Provider Agreement?",
+            "elapsed_ms": 138490,
+            "prompt_tokens": 4057,
+            "completion_tokens": 272,
+            "artifact": "STATUS: NOT_FOUND\nFACT: none\nSOURCE: none\nERROR: Error code: 400 - {'error': {'message': 'Tool choice is none, but model called a tool', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\"name\": \"search_contracts\", \"arguments\": {\"query\":\"Jordan Hale base salary\",\"contracts\":[\"Service-Provider-Agreement.pdf\"]}}'}}"
+          },
+          {
+            "id": "0b4ffa34",
+            "specialist": "coverage-checker",
+            "state": "completed",
+            "history": [
+              "submitted",
+              "working",
+              "completed"
+            ],
+            "subquestion": "Does this Service Provider Agreement require cyber insurance of $2 million?",
+            "elapsed_ms": 62171,
+            "prompt_tokens": 5116,
+            "completion_tokens": 388,
+            "artifact": "STATUS: ABSENT\nFACT: none\nSOURCE: none"
+          }
+        ]
+      }
+    }
+  ]
+}

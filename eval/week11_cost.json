@@ -1,0 +1,315 @@
+{
+  "model": "openai/gpt-oss-20b",
+  "workload": "Each of 4 contract questions once, then the same 4 again.",
+  "baseline_requests": 8,
+  "baseline_cost_per_request_usd": 9.555e-05,
+  "improved_requests": 8,
+  "improved_cost_per_request_usd": 4.778e-05,
+  "cache_hit_cost_per_request_usd": 0.0,
+  "reduction_pct": 50.0,
+  "misses": [
+    {
+      "question": "How much written notice does a party need to give to terminate this agreement?",
+      "trace_id": "trc_1cf6e87728ef",
+      "cache_hit": false,
+      "cost_usd": 9.72e-05,
+      "duration_ms": 1277,
+      "spans": [
+        {
+          "name": "cache_lookup",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": false,
+          "note": "miss"
+        },
+        {
+          "name": "retrieve",
+          "duration_ms": 37,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": false,
+          "note": "local hybrid search; embedding cost is 0"
+        },
+        {
+          "name": "generate",
+          "duration_ms": 1240,
+          "prompt_tokens": 700,
+          "completion_tokens": 149,
+          "cost_usd": 9.72e-05,
+          "cache_hit": false,
+          "model": "openai/gpt-oss-20b"
+        }
+      ],
+      "quality_flag": ""
+    },
+    {
+      "question": "Which country's law governs this agreement?",
+      "trace_id": "trc_dc99c7a12970",
+      "cache_hit": false,
+      "cost_usd": 7.71e-05,
+      "duration_ms": 977,
+      "spans": [
+        {
+          "name": "cache_lookup",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": false,
+          "note": "miss"
+        },
+        {
+          "name": "retrieve",
+          "duration_ms": 14,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": false,
+          "note": "local hybrid search; embedding cost is 0"
+        },
+        {
+          "name": "generate",
+          "duration_ms": 963,
+          "prompt_tokens": 704,
+          "completion_tokens": 81,
+          "cost_usd": 7.71e-05,
+          "cache_hit": false,
+          "model": "openai/gpt-oss-20b"
+        }
+      ],
+      "quality_flag": ""
+    },
+    {
+      "question": "Who are the two parties to the Service Provider Agreement?",
+      "trace_id": "trc_10a2840c70ff",
+      "cache_hit": false,
+      "cost_usd": 0.00010898,
+      "duration_ms": 1063,
+      "spans": [
+        {
+          "name": "cache_lookup",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": false,
+          "note": "miss"
+        },
+        {
+          "name": "retrieve",
+          "duration_ms": 19,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": false,
+          "note": "local hybrid search; embedding cost is 0"
+        },
+        {
+          "name": "generate",
+          "duration_ms": 1044,
+          "prompt_tokens": 893,
+          "completion_tokens": 140,
+          "cost_usd": 0.00010898,
+          "cache_hit": false,
+          "model": "openai/gpt-oss-20b"
+        }
+      ],
+      "quality_flag": ""
+    },
+    {
+      "question": "Who is the Lead Manager appointed for the Issue?",
+      "trace_id": "trc_5874602ad1c6",
+      "cache_hit": false,
+      "cost_usd": 9.892e-05,
+      "duration_ms": 1089,
+      "spans": [
+        {
+          "name": "cache_lookup",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": false,
+          "note": "miss"
+        },
+        {
+          "name": "retrieve",
+          "duration_ms": 18,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": false,
+          "note": "local hybrid search; embedding cost is 0"
+        },
+        {
+          "name": "generate",
+          "duration_ms": 1071,
+          "prompt_tokens": 739,
+          "completion_tokens": 145,
+          "cost_usd": 9.892e-05,
+          "cache_hit": false,
+          "model": "openai/gpt-oss-20b"
+        }
+      ],
+      "quality_flag": ""
+    }
+  ],
+  "hits": [
+    {
+      "question": "How much written notice does a party need to give to terminate this agreement?",
+      "trace_id": "trc_e3ad6659ed00",
+      "cache_hit": true,
+      "cost_usd": 0.0,
+      "duration_ms": 0,
+      "spans": [
+        {
+          "name": "cache_lookup",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": true,
+          "note": "hit"
+        },
+        {
+          "name": "retrieve",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": true,
+          "note": "skipped; exact cache hit"
+        },
+        {
+          "name": "generate",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": true,
+          "model": "openai/gpt-oss-20b",
+          "note": "skipped; exact cache hit"
+        }
+      ],
+      "quality_flag": ""
+    },
+    {
+      "question": "Which country's law governs this agreement?",
+      "trace_id": "trc_ed8d54a68d7e",
+      "cache_hit": true,
+      "cost_usd": 0.0,
+      "duration_ms": 0,
+      "spans": [
+        {
+          "name": "cache_lookup",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": true,
+          "note": "hit"
+        },
+        {
+          "name": "retrieve",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": true,
+          "note": "skipped; exact cache hit"
+        },
+        {
+          "name": "generate",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": true,
+          "model": "openai/gpt-oss-20b",
+          "note": "skipped; exact cache hit"
+        }
+      ],
+      "quality_flag": ""
+    },
+    {
+      "question": "Who are the two parties to the Service Provider Agreement?",
+      "trace_id": "trc_eeaccfdab6eb",
+      "cache_hit": true,
+      "cost_usd": 0.0,
+      "duration_ms": 0,
+      "spans": [
+        {
+          "name": "cache_lookup",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": true,
+          "note": "hit"
+        },
+        {
+          "name": "retrieve",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": true,
+          "note": "skipped; exact cache hit"
+        },
+        {
+          "name": "generate",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": true,
+          "model": "openai/gpt-oss-20b",
+          "note": "skipped; exact cache hit"
+        }
+      ],
+      "quality_flag": ""
+    },
+    {
+      "question": "Who is the Lead Manager appointed for the Issue?",
+      "trace_id": "trc_ad554b6cb9aa",
+      "cache_hit": true,
+      "cost_usd": 0.0,
+      "duration_ms": 0,
+      "spans": [
+        {
+          "name": "cache_lookup",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": true,
+          "note": "hit"
+        },
+        {
+          "name": "retrieve",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": true,
+          "note": "skipped; exact cache hit"
+        },
+        {
+          "name": "generate",
+          "duration_ms": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "cost_usd": 0.0,
+          "cache_hit": true,
+          "model": "openai/gpt-oss-20b",
+          "note": "skipped; exact cache hit"
+        }
+      ],
+      "quality_flag": ""
+    }
+  ],
+  "note": "Baseline cost per request is the mean of the four measured Groq calls. A repeat of those calls with no cache would cost the same again. The improved figure is the mean across the four misses and four cache hits."
+}

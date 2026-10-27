@@ -3,11 +3,20 @@
 from __future__ import annotations
 
 import os
+import time
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 
 from dotenv import load_dotenv
 
+from rag.agent_types import estimate_cost_usd
+from rag.answer_cache import (
+    AnswerCache,
+    cache_enabled_default,
+    chunks_from_payload,
+    chunks_to_payload,
+)
 from rag.chunking import chunk_documents
 from rag.generate import RagAnswer, generate_answer
 from rag.loader import load_directory
@@ -19,7 +28,9 @@ from rag.observability import (
     tracing_enabled,
 )
 from rag.query import rewrite_query
+from rag.request_log import append_request, elapsed_ms, make_span, new_trace_id, totals_from_spans
 from rag.store import RetrievedChunk, VectorStore
+from rag.termination_guard import is_wrong_termination_citation
 
 load_dotenv()
 
@@ -124,52 +135,175 @@ class RagPipeline:
         source_filter: str | None = None,
         mode: str | None = None,
         rewrite: bool = True,
+        use_cache: bool | None = None,
+        cache_path: str | Path | None = None,
+        channel: str = "app",
     ) -> RagAnswer:
         retrieval_mode = (mode or self.default_mode).lower()
         k = top_k or self.top_k
-        payload_in = {
-            "question": question,
-            "mode": retrieval_mode,
-            "top_k": k,
-            "source_filter": source_filter,
-        }
+        cache_on = cache_enabled_default() if use_cache is None else use_cache
+        model_name = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
+        trace_id = new_trace_id()
+        spans: list[dict] = []
+        cache = AnswerCache(Path(cache_path) if cache_path else None)
+        cache_key = AnswerCache.make_key(
+            question=question,
+            mode=retrieval_mode,
+            source_filter=source_filter,
+            top_k=k,
+            index_id=str(self.store.persist_dir),
+        )
 
-        def _run() -> RagAnswer:
-            chunks = self.retrieve(
-                question,
-                top_k=top_k,
-                source_filter=source_filter,
-                mode=mode,
-                rewrite=rewrite,
+        t_cache = time.perf_counter()
+        cached = cache.get(cache_key) if cache_on else None
+        spans.append(
+            make_span(
+                "cache_lookup",
+                elapsed_ms(t_cache),
+                cache_hit=cached is not None,
+                note="hit" if cached is not None else "miss",
             )
-            return generate_answer(question, chunks)
+        )
 
-        if not tracing_enabled():
-            return _run()
-
-        from langfuse import propagate_attributes
-
-        lf = get_langfuse()
-        with lf.start_as_current_observation(
-            as_type="chain",
-            name="rag-ask",
-            input=payload_in,
-        ) as root:
-            with propagate_attributes(
-                session_id=session_id(),
-                tags=trace_tags("ask"),
-                metadata={"mode": retrieval_mode},
-                version=os.getenv("LANGFUSE_RELEASE", "week5-error-analysis"),
-            ):
-                answer = _run()
-                root.update(
-                    output={
-                        "answer": answer.answer,
-                        "grounded": answer.grounded,
-                        "sources": answer.sources,
-                    }
+        avoided = 0.0
+        if cached is not None:
+            avoided = float(cached.get("cost_usd") or 0.0)
+            spans.append(
+                make_span(
+                    "retrieve",
+                    0,
+                    cache_hit=True,
+                    note="skipped; exact cache hit",
                 )
-                return answer
+            )
+            spans.append(
+                make_span(
+                    "generate",
+                    0,
+                    cache_hit=True,
+                    model=model_name,
+                    note="skipped; exact cache hit",
+                )
+            )
+            answer = RagAnswer(
+                answer=cached.get("answer") or "",
+                sources=list(cached.get("sources") or []),
+                chunks_used=chunks_from_payload(cached.get("chunks") or []),
+                grounded=bool(cached.get("grounded")),
+                prompt_tokens=0,
+                completion_tokens=0,
+                llm_calls=0,
+            )
+        else:
+            payload_in = {
+                "question": question,
+                "mode": retrieval_mode,
+                "top_k": k,
+                "source_filter": source_filter,
+            }
+
+            def _run() -> RagAnswer:
+                t_retrieve = time.perf_counter()
+                chunks = self.retrieve(
+                    question,
+                    top_k=top_k,
+                    source_filter=source_filter,
+                    mode=mode,
+                    rewrite=rewrite,
+                )
+                spans.append(
+                    make_span(
+                        "retrieve",
+                        elapsed_ms(t_retrieve),
+                        note="local hybrid search; embedding cost is 0",
+                    )
+                )
+                t_generate = time.perf_counter()
+                generated = generate_answer(question, chunks)
+                spans.append(
+                    make_span(
+                        "generate",
+                        elapsed_ms(t_generate),
+                        prompt_tokens=generated.prompt_tokens,
+                        completion_tokens=generated.completion_tokens,
+                        cost_usd=estimate_cost_usd(
+                            generated.prompt_tokens,
+                            generated.completion_tokens,
+                        ),
+                        model=model_name,
+                    )
+                )
+                return generated
+
+            if not tracing_enabled():
+                answer = _run()
+            else:
+                from langfuse import propagate_attributes
+
+                lf = get_langfuse()
+                with lf.start_as_current_observation(
+                    as_type="chain",
+                    name="rag-ask",
+                    input=payload_in,
+                ) as root:
+                    with propagate_attributes(
+                        session_id=session_id(),
+                        tags=trace_tags("ask"),
+                        metadata={"mode": retrieval_mode, "trace_id": trace_id},
+                        version=os.getenv("LANGFUSE_RELEASE", "week5-error-analysis"),
+                    ):
+                        answer = _run()
+                        root.update(
+                            output={
+                                "answer": answer.answer,
+                                "grounded": answer.grounded,
+                                "sources": answer.sources,
+                                "trace_id": trace_id,
+                            }
+                        )
+
+            if cache_on:
+                paid = estimate_cost_usd(answer.prompt_tokens, answer.completion_tokens)
+                cache.put(
+                    cache_key,
+                    {
+                        "answer": answer.answer,
+                        "sources": answer.sources,
+                        "grounded": answer.grounded,
+                        "chunks": chunks_to_payload(answer.chunks_used),
+                        "cost_usd": paid,
+                    },
+                )
+
+        totals = totals_from_spans(spans)
+        quality_flag = (
+            "wrong_termination_clause" if is_wrong_termination_citation(answer.answer) else ""
+        )
+        answer.trace_id = trace_id
+        answer.cache_hit = cached is not None
+        answer.cost_usd = float(totals["cost_usd"])
+        answer.avoided_cost_usd = avoided
+        answer.duration_ms = int(totals["duration_ms"])
+        answer.quality_flag = quality_flag
+        answer.spans = spans
+        append_request(
+            {
+                "trace_id": trace_id,
+                "ts": datetime.now().astimezone().isoformat(timespec="seconds"),
+                "channel": channel,
+                "question": question,
+                "answer": answer.answer,
+                "sources": answer.sources,
+                "model": model_name,
+                "cache_hit": answer.cache_hit,
+                "quality_flag": quality_flag,
+                "spans": spans,
+                "avoided_cost_usd": round(avoided, 8),
+                "chunks": chunks_payload(answer.chunks_used),
+                **totals,
+            }
+        )
+        return answer
 
     def status(self) -> dict:
         return {
